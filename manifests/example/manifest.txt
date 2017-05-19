@@ -1,0 +1,10 @@
+# [@]SourceFileOrURL             | Alg     | Digest                               | Length   | ModTime        
+mydata/initial                   | md5     | d                                    | 4096     | 1495206406    
+mydata/final                     | md5     | d                                    | 4096     | 1495206387    
+mydata/initial/002.dat           | md5     | 615c39d58f43f81301c4dd242845409e     | 6        | 1495206406    
+mydata/initial/001.dat           | md5     | dac9522e957b744ad22063bf683c6a32     | 6        | 1495206398    
+mydata/final/v2                  | md5     | d                                    | 4096     | 1495206432    
+mydata/final/v1                  | md5     | d                                    | 4096     | 1495206425    
+mydata/final/v2/combined.dat     | md5     | 210f6dee8ef84efc57be4a343bdd3bd8     | 12       | 1495206432    
+mydata/final/v1/combined.dat     | md5     | 0a1f2d66a7384a356ed11aa59db8960f     | 11       | 1495206425    
+
