@@ -5,9 +5,11 @@ Created on Nov 28, 2017
 '''
 
 import argparse
+
 from db.db_manager import DBManager
 from db.table_constraints import TableConstraints
-from parse.xlsx.xlsx_parser import XlsxParser
+
+from parse.csv.csv_parser import CsvParser
 
 CONNECTION_STRING = 'postgresql://glamod:glamod@localhost:5432/c3s_311a_dev'
 SCHEMA = 'cdm_v1'
@@ -18,7 +20,7 @@ def load_model(data_file, table_name, db_manager):
     table = db_manager.get_table(table_name)
     
     constraints = TableConstraints(table)
-    parser = XlsxParser(constraints)
+    parser = CsvParser(constraints)
     parsed_entries = parser.parse(data_file)
     
     db_manager.start_session()
