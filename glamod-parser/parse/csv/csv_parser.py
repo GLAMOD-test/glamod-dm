@@ -1,18 +1,20 @@
 '''
 Created on Dec 13, 2017
 
-@author: vagrant
+@author: William Tucker
 '''
 
-from parse.parser import Parser
+from parse.file_parser import FileParser
 
-class CsvParser(Parser):
+
+class CsvParser(FileParser):
     
     def parse(self, file, delimiter='|'):
         
         with open(file, encoding='iso-8859-1') as csv_file:
             
-            columns = [line.strip() for line in csv_file.readline().split(delimiter)]
+            header = csv_file.readline()
+            columns = [names.strip() for names in header.split(delimiter)]
             for column_name in columns:
                 
                 if not self._table_constraints.is_column(column_name):
@@ -22,16 +24,18 @@ class CsvParser(Parser):
             rows = []
             for _, line in enumerate(csv_file):
                 
-                row = {}
-                values = [line.strip() for line in csv_file.readline().split(delimiter)]
-                
-                for i in range(0, len(columns)):
+                if line and line.strip() != '':
                     
-                    column_name = columns[i]
-                    value = values[i]
+                    row = {}
+                    values = [value.strip() for value in line.split(delimiter)]
                     
-                    row[column_name] = self.parse_value(column_name, value)
-            
-            rows.append(row)
+                    for i in range(0, len(columns)):
+                        
+                        column_name = columns[i]
+                        value = values[i]
+                        
+                        row[column_name] = self.parse_value(column_name, value)
+                    
+                    rows.append(row)
         
         return rows

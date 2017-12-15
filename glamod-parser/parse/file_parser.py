@@ -1,15 +1,16 @@
 '''
 Created on Dec 13, 2017
 
-@author: vagrant
+@author: William Tucker
 '''
 
 import re
-from dateutil.parser import parse as dateutil_parse
 
+from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 
-class Parser(object):
+
+class FileParser(object):
     
     def __init__(self, table_constraints):
         
@@ -40,13 +41,13 @@ class Parser(object):
     @staticmethod
     def is_null(value):
         
-        return value == 'NULL'
+        return value == 'NULL' or value == ''
     
     @staticmethod
     def convert(value, data_type):
         
         if data_type == datetime:
-            return Parser.parse_datetime(value)
+            return FileParser.parse_datetime(value)
         else:
             return data_type(value)
     

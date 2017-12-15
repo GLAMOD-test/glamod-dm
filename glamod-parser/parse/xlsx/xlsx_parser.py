@@ -4,11 +4,12 @@ Created on Nov 28, 2017
 @author: William Tucker
 '''
 
-from parse.parser import Parser
+from parse.file_parser import FileParser
 
 from openpyxl import load_workbook
 
-class XlsxParser(Parser):
+
+class XlsxParser(FileParser):
     
     def parse(self, file, sheet=None):
         

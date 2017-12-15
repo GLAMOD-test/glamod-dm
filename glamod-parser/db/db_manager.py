@@ -40,7 +40,9 @@ class DBManager(object):
         
         return getattr(self._Base.classes, class_name)
     
-    def add(self, model_instance):
+    def merge(self, model_instance):
         
-        self._session.add(model_instance)
+        self._session.merge(model_instance)
+    
+    def commit(self):
         self._session.commit()
