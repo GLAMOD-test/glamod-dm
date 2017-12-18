@@ -10,18 +10,19 @@ from glamod.db.db_manager import DBManager
 from glamod.db.table_constraints import TableConstraints
 
 from glamod.parser.csv.csv_parser import CsvParser
+from glamod.parser.xlsx.xlsx_parser import XlsxParser
 
 
 CONNECTION_TEMPLATE = 'postgresql://{user}:{password}@{host}:{port}/{database}'
 
 
-def load_model(data_file, table_name, db_manager):
+def load_model(data_file, table_name, db_manager, parser_class=CsvParser):
     
     model_class = db_manager.get_model_class(table_name)
     table = db_manager.get_table(table_name)
     
     constraints = TableConstraints(table)
-    parser = CsvParser(constraints)
+    parser = parser_class(constraints)
     parsed_entries = parser.parse(data_file)
     
     db_manager.start_session()
@@ -77,4 +78,8 @@ def main():
     file_name = args.file
     table_name = args.table
     
-    load_model(file_name, table_name, db_manager)
+    parser_class = CsvParser
+    if args.xlsx:
+        parser_class = XlsxParser
+    
+    load_model(file_name, table_name, db_manager, parser_class)
