@@ -6,10 +6,10 @@ Created on Nov 28, 2017
 
 import argparse
 
-from db.db_manager import DBManager
-from db.table_constraints import TableConstraints
+from glamod.db.db_manager import DBManager
+from glamod.db.table_constraints import TableConstraints
 
-from parse.csv.csv_parser import CsvParser
+from glamod.parser.csv.csv_parser import CsvParser
 
 
 CONNECTION_TEMPLATE = 'postgresql://{user}:{password}@{host}:{port}/{database}'
