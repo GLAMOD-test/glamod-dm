@@ -4,7 +4,7 @@ Created on Nov 28, 2017
 @author: William Tucker
 '''
 
-from parse.file_parser import FileParser
+from glamod.parser.file_parser import FileParser
 
 from openpyxl import load_workbook
 

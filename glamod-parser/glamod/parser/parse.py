@@ -6,6 +6,8 @@ Created on Nov 28, 2017
 
 import argparse
 
+from getpass import getpass
+
 from glamod.db.db_manager import DBManager
 from glamod.db.table_constraints import TableConstraints
 
@@ -65,7 +67,7 @@ def main():
     
     db_password = args.password
     if not db_password:
-        db_password = input("Database password:")
+        db_password = getpass()
     
     connection_string = CONNECTION_TEMPLATE.format(user = db_user,
                                                    password = db_password,

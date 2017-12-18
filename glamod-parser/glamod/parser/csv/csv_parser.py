@@ -4,7 +4,7 @@ Created on Dec 13, 2017
 @author: William Tucker
 '''
 
-from parse.file_parser import FileParser
+from glamod.parser.file_parser import FileParser
 
 
 class CsvParser(FileParser):
