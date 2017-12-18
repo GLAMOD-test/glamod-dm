@@ -27,7 +27,6 @@ class XlsxParser(FileParser):
             
             columns.append((column_header.column, column_name))
         
-        rows = []
         for i in range(2, sheet.max_row + 1):
             
             row = {}
@@ -36,6 +35,4 @@ class XlsxParser(FileParser):
                 cell = sheet[column_id + str(i)]
                 row[column_name] = self.parse_value(column_name, cell.value)
             
-            rows.append(row)
-        
-        return rows
+            yield row

@@ -21,7 +21,6 @@ class CsvParser(FileParser):
                     raise ValueError(
                         f"{column_name} is not a column of {self._table_constraints.name}")
             
-            rows = []
             for _, line in enumerate(csv_file):
                 
                 if line and line.strip() != '':
@@ -36,6 +35,4 @@ class CsvParser(FileParser):
                         
                         row[column_name] = self.parse_value(column_name, value)
                     
-                    rows.append(row)
-        
-        return rows
+                    yield row
