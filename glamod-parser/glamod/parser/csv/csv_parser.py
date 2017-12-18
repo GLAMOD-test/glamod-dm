@@ -19,7 +19,7 @@ class CsvParser(FileParser):
             for name in header.split(delimiter):
                 
                 column_name = name.strip()
-                if not column_name in self._ignore_columns:
+                if not self._ignore_columns or not column_name in self._ignore_columns:
                     
                     if not self._table_constraints.is_column(column_name):
                         raise ValueError(

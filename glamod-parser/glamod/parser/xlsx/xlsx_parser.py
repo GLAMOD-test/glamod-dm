@@ -22,7 +22,7 @@ class XlsxParser(FileParser):
         for column_header in sheet[1]:
             
             column_name = column_header.value
-            if not column_name in self._ignore_columns:
+            if not self._ignore_columns or not column_name in self._ignore_columns:
                 
                 if not self._table_constraints.is_column(column_name):
                     raise ValueError(f"{column_name} is not a column of {self._table_constraints.name}")
