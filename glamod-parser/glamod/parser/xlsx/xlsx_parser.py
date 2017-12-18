@@ -22,10 +22,12 @@ class XlsxParser(FileParser):
         for column_header in sheet[1]:
             
             column_name = column_header.value
-            if not self._table_constraints.is_column(column_name):
-                raise ValueError(f"{column_name} is not a column of {self._table_constraints.name}")
-            
-            columns.append((column_header.column, column_name))
+            if not column_name in self._ignore_columns:
+                
+                if not self._table_constraints.is_column(column_name):
+                    raise ValueError(f"{column_name} is not a column of {self._table_constraints.name}")
+                
+                columns.append((column_header.column, column_name))
         
         for i in range(2, sheet.max_row + 1):
             

@@ -18,7 +18,7 @@ from glamod.parser.xlsx.xlsx_parser import XlsxParser
 CONNECTION_TEMPLATE = 'postgresql://{user}:{password}@{host}:{port}/{database}'
 
 
-def load_model(data_file, table_name, db_info, parser_class=CsvParser):
+def load_model(data_file, table_name, db_info, ignore_columns, parser_class=CsvParser):
     
     connection_string = CONNECTION_TEMPLATE.format(**db_info)
     
@@ -27,10 +27,16 @@ def load_model(data_file, table_name, db_info, parser_class=CsvParser):
     
     model_class = db_manager.get_model_class(table_name)
     table = db_manager.get_table(table_name)
+    constraints = TableConstraints(table)
+    
+    if ignore_columns:
+        for column_name in ignore_columns:
+            if not constraints.is_column(column_name):
+                raise ValueError(f"{column_name} is not a column of {constraints.name}")
+        print(f"Ignoring columns: {ignore_columns}")
     
     print(f"Parsing: {data_file}")
-    constraints = TableConstraints(table)
-    parser = parser_class(constraints)
+    parser = parser_class(constraints, ignore_columns)
     parsed_entries = parser.parse(data_file)
     
     if (db_info.get('schema')):
@@ -75,6 +81,9 @@ def main():
                         help='the database user')
     parser.add_argument('--password', '-p', type=str,
                         help='the database user\'s password')
+    # Extra options
+    parser.add_argument('--ignore', '-i', type=str, action='append',
+                        help='columns to ignore')
     
     args = parser.parse_args()
     
@@ -102,4 +111,4 @@ def main():
         'password': db_password,
     }
     
-    load_model(file_name, table_name, db_info, parser_class)
+    load_model(file_name, table_name, db_info, args.ignore, parser_class)

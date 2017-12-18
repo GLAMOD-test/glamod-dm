@@ -12,9 +12,10 @@ from datetime import datetime
 
 class FileParser(object):
     
-    def __init__(self, table_constraints):
+    def __init__(self, table_constraints, ignore_columns):
         
         self._table_constraints = table_constraints
+        self._ignore_columns = ignore_columns
     
     def parse_value(self, column_name, value):
         

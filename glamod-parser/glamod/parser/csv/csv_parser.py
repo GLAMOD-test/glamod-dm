@@ -14,12 +14,20 @@ class CsvParser(FileParser):
         with open(file, encoding='iso-8859-1') as csv_file:
             
             header = csv_file.readline()
-            columns = [names.strip() for names in header.split(delimiter)]
-            for column_name in columns:
+            columns = []
+            column_index = 0
+            for name in header.split(delimiter):
                 
-                if not self._table_constraints.is_column(column_name):
-                    raise ValueError(
-                        f"{column_name} is not a column of {self._table_constraints.name}")
+                column_name = name.strip()
+                if not column_name in self._ignore_columns:
+                    
+                    if not self._table_constraints.is_column(column_name):
+                        raise ValueError(
+                            f"{column_name} is not a column of {self._table_constraints.name}")
+                    
+                    columns.append((column_index, column_name))
+                
+                column_index += 1
             
             for _, line in enumerate(csv_file):
                 
@@ -28,11 +36,9 @@ class CsvParser(FileParser):
                     row = {}
                     values = [value.strip() for value in line.split(delimiter)]
                     
-                    for i in range(0, len(columns)):
+                    for column_index, column_name in columns:
                         
-                        column_name = columns[i]
-                        value = values[i]
-                        
+                        value = values[column_index]
                         row[column_name] = self.parse_value(column_name, value)
                     
                     yield row
