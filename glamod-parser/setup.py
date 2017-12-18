@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='glamod-parser',
-      version='0.1',
+      version='0.2',
       description='GLAMOD CDM data parser',
       author='William Tucker',
       author_email='william.tucker@stfc.ac.uk',
