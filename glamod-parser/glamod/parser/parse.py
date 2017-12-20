@@ -35,7 +35,7 @@ def load_model(data_file, table_name, db_info, ignore_columns, parser_class=CsvP
     
     print(f"Parsing: {data_file}")
     if ignore_columns:
-        print(f"Ignore columns: {''.join(ignore_columns)}")
+        print(f"Ignore columns: {' '.join(ignore_columns)}")
     parsed_entries = parser.parse(data_file, ignore_columns=ignore_columns)
     
     if (db_info.get('schema')):
