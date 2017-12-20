@@ -18,7 +18,9 @@ from glamod.parser.xlsx.xlsx_parser import XlsxParser
 CONNECTION_TEMPLATE = 'postgresql://{user}:{password}@{host}:{port}/{database}'
 
 
-def load_model(data_file, table_name, db_info, ignore_columns, parser_class=CsvParser):
+def load_model(data_file, table_name, db_info,
+               null_values=None, use_default_null=True,
+               ignore_columns=None, parser_class=CsvParser):
     
     connection_string = CONNECTION_TEMPLATE.format(**db_info)
     
@@ -31,12 +33,15 @@ def load_model(data_file, table_name, db_info, ignore_columns, parser_class=CsvP
     
     if ignore_columns:
         print(f"Ignoring columns: {ignore_columns}")
-    parser = parser_class(constraints)
+    parser = parser_class(constraints,
+                          null_values=null_values,
+                          use_default_null=use_default_null)
     
     print(f"Parsing: {data_file}")
     if ignore_columns:
         print(f"Ignore columns: {' '.join(ignore_columns)}")
-    parsed_entries = parser.parse(data_file, ignore_columns=ignore_columns)
+    parsed_entries = parser.parse(data_file,
+                                  ignore_columns=ignore_columns)
     
     if (db_info.get('schema')):
         print(f"Updating rows for {db_info['schema']}.{table_name}")
@@ -81,6 +86,10 @@ def main():
     parser.add_argument('--password', '-p', type=str,
                         help='the database user\'s password')
     # Extra options
+    parser.add_argument('--null-values', '-n', type=str, action='append',
+                        help='values which should equal NULL in the database')
+    parser.add_argument('--no-parse-null', '-N', action='store_false',
+                        help='switch off default NULL value parsing')
     parser.add_argument('--ignore', '-i', type=str, action='append',
                         help='columns to ignore')
     
@@ -110,4 +119,6 @@ def main():
         'password': db_password,
     }
     
-    load_model(file_name, table_name, db_info, args.ignore, parser_class)
+    load_model(file_name, table_name, db_info,
+               null_values=args.null_values, use_default_null=args.no_parse_null,
+               ignore_columns=args.ignore, parser_class=parser_class)

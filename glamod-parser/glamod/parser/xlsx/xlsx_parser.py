@@ -11,7 +11,7 @@ from openpyxl import load_workbook
 
 class XlsxParser(FileParser):
     
-    def parse(self, file, sheet=None):
+    def parse(self, file, sheet=None, ignore_columns=None, ignore_strict=False):
         
         wb = load_workbook(file)
         if not sheet:
@@ -22,10 +22,11 @@ class XlsxParser(FileParser):
         for column_header in sheet[1]:
             
             column_name = column_header.value
-            if not self._ignore_columns or not column_name in self._ignore_columns:
+            if not ignore_columns or not column_name in ignore_columns:
                 
                 if not self._table_constraints.is_column(column_name):
-                    raise ValueError(f"{column_name} is not a column of {self._table_constraints.name}")
+                    raise ValueError(f"{column_name} is not a column of "
+                                     f"{self._table_constraints.name}")
                 
                 columns.append((column_header.column, column_name))
         

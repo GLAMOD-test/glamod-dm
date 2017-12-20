@@ -5,6 +5,7 @@ Created on Dec 13, 2017
 '''
 
 from glamod.parser.file_parser import FileParser
+from glamod.parser.exceptions import ParserException
 
 
 class CsvParser(FileParser):
@@ -39,7 +40,7 @@ class CsvParser(FileParser):
             
             for line_index, line in enumerate(csv_file):
                 
-                self._current_row = line_index + 1
+                line_num = line_index + 2
                 
                 if line and line.strip() != '':
                     
@@ -49,8 +50,13 @@ class CsvParser(FileParser):
                     for column_index, column_name in columns:
                         
                         value = values[column_index]
-                        row[column_name] = self.parse_value(column_name, value)
+                        
+                        try:
+                            row[column_name] = self.parse_value(column_name, value)
+                        except ParserException as e:
+                            import sys
+                            raise type(e)(
+                                str(e) + f" at line {line_num}").with_traceback(
+                                    sys.exc_info()[2])
                     
                     yield row
-        
-        self._current_row = 0

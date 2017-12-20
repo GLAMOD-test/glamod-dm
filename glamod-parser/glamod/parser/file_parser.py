@@ -15,41 +15,48 @@ from glamod.parser.exceptions import ParserException
 
 class FileParser(object):
     
-    def __init__(self, table_constraints):
+    DEFAULT_NULL_VALUE = 'NULL'
+    
+    def __init__(self, table_constraints, null_values=None, use_default_null=True):
         
         self._table_constraints = table_constraints
+        
+        self._null_values = []
+        if use_default_null:
+            self._null_values.append(self.DEFAULT_NULL_VALUE)
+        
+        if null_values and len(null_values) > 0:
+            self._null_values + null_values
     
     def parse_value(self, column_name, value):
         
-        if value != None and not self.is_null(value):
-            
-            parsed_value = value
-            
-            try:
-                column_type = self._table_constraints.get_column_type(column_name)
-                if not isinstance(value, column_type):
-                    
-                    if self._table_constraints.is_list_type(column_name):
-                        column_type = self._table_constraints.get_column_item_type(
-                                column_name)
-                        
-                        values_list = self.cell_value_to_list(str(value))
-                        parsed_value = [self.convert(value, column_type)
-                                        for value in values_list]
-                        
-                    else:
-                        parsed_value = self.convert(value, column_type)
-                
-            except (ValueError, decimal.InvalidOperation) as e:
-                raise ParserException(f"Failed to parse value for column '{column_name}'"
-                                      f", entry {self._current_row}") from e
-            
-            return parsed_value
-    
-    @staticmethod
-    def is_null(value):
+        if value == None:
+            return value
         
-        return value == 'NULL' or value == ''
+        if value in self._null_values:
+            return None
+        
+        parsed_value = value
+        try:
+            column_type = self._table_constraints.get_column_type(column_name)
+            if value and not isinstance(value, column_type):
+                
+                if self._table_constraints.is_list_type(column_name):
+                    column_type = self._table_constraints.get_column_item_type(
+                            column_name)
+                    
+                    values_list = self.cell_value_to_list(str(value))
+                    parsed_value = [self.convert(value, column_type)
+                                    for value in values_list]
+                    
+                else:
+                    parsed_value = self.convert(value, column_type)
+            
+        except (ValueError, decimal.InvalidOperation) as e:
+            raise ParserException(f"Failed to parse value '{value}' to {column_type} "
+                                  f"for column '{column_name}'") from e
+        
+        return parsed_value
     
     @staticmethod
     def convert(value, data_type):
