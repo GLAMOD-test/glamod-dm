@@ -9,7 +9,7 @@ from glamod.parser.file_parser import FileParser
 
 class CsvParser(FileParser):
     
-    def parse(self, file, delimiter='|'):
+    def parse(self, file, delimiter='|', ignore_columns=None, ignore_strict=False):
         
         with open(file, encoding='iso-8859-1') as csv_file:
             
@@ -19,17 +19,27 @@ class CsvParser(FileParser):
             for name in header.split(delimiter):
                 
                 column_name = name.strip()
-                if not self._ignore_columns or not column_name in self._ignore_columns:
+                if not ignore_columns or not column_name in ignore_columns:
                     
                     if not self._table_constraints.is_column(column_name):
                         raise ValueError(
-                            f"{column_name} is not a column of {self._table_constraints.name}")
+                            f"'{column_name}' is not a column of {self._table_constraints.name}")
                     
                     columns.append((column_index, column_name))
                 
                 column_index += 1
             
-            for _, line in enumerate(csv_file):
+            if ignore_strict and ignore_columns:
+                
+                _, column_names = zip(*columns)
+                for ignore_column in ignore_columns:
+                    if not ignore_column in column_names:
+                        raise ValueError(f"'{ignore_column}' column from ignore list not "
+                                         "present in file. Use ignore_strict=False to disable")
+            
+            for line_index, line in enumerate(csv_file):
+                
+                self._current_row = line_index + 1
                 
                 if line and line.strip() != '':
                     
@@ -42,3 +52,5 @@ class CsvParser(FileParser):
                         row[column_name] = self.parse_value(column_name, value)
                     
                     yield row
+        
+        self._current_row = 0

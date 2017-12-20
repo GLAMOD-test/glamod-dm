@@ -31,6 +31,8 @@ class XlsxParser(FileParser):
         
         for i in range(2, sheet.max_row + 1):
             
+            self._current_row = i
+            
             row = {}
             for column_id, column_name in columns:
                 
@@ -38,3 +40,5 @@ class XlsxParser(FileParser):
                 row[column_name] = self.parse_value(column_name, cell.value)
             
             yield row
+        
+        self._current_row = 0

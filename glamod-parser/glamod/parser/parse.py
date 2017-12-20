@@ -30,14 +30,13 @@ def load_model(data_file, table_name, db_info, ignore_columns, parser_class=CsvP
     constraints = TableConstraints(table)
     
     if ignore_columns:
-        for column_name in ignore_columns:
-            if not constraints.is_column(column_name):
-                raise ValueError(f"{column_name} is not a column of {constraints.name}")
         print(f"Ignoring columns: {ignore_columns}")
+    parser = parser_class(constraints)
     
     print(f"Parsing: {data_file}")
-    parser = parser_class(constraints, ignore_columns)
-    parsed_entries = parser.parse(data_file)
+    if ignore_columns:
+        print(f"Ignore columns: {''.join(ignore_columns)}")
+    parsed_entries = parser.parse(data_file, ignore_columns=ignore_columns)
     
     if (db_info.get('schema')):
         print(f"Updating rows for {db_info['schema']}.{table_name}")
