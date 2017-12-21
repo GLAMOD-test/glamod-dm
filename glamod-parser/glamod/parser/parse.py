@@ -31,8 +31,6 @@ def load_model(data_file, table_name, db_info,
     table = db_manager.get_table(table_name)
     constraints = TableConstraints(table)
     
-    if ignore_columns:
-        print(f"Ignoring columns: {ignore_columns}")
     parser = parser_class(constraints,
                           null_values=null_values,
                           use_default_null=use_default_null)
