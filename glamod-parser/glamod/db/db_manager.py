@@ -51,6 +51,10 @@ class DBManager(object):
         
         self._session.merge(model_instance)
     
+    def bulk_save(self, model_instances):
+        
+        self._session.bulk_save_objects(model_instances)
+    
     def commit(self):
         
         self._session.commit()

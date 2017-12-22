@@ -18,7 +18,7 @@ from glamod.parser.xlsx.xlsx_parser import XlsxParser
 CONNECTION_TEMPLATE = 'postgresql://{user}:{password}@{host}:{port}/{database}'
 
 
-def load_model(data_file, table_name, db_info,
+def load_model(data_file, table_name, db_info, merge=False,
                null_values=None, use_default_null=True,
                ignore_columns=None, parser_class=CsvParser):
     
@@ -50,14 +50,33 @@ def load_model(data_file, table_name, db_info,
         import time
         start = time.clock()
         
-        num_merged = 0
-        for entry in parsed_entries:
-            db.merge(model_class(**entry))
-            num_merged += 1
+        row_count = 0
+        if merge:
+            
+            for entry in parsed_entries:
+                db.merge(model_class(**entry))
+                row_count += 1
+            
+        else:
+            
+            model_instances = []
+            for entry in parsed_entries:
+                model_instances.append(model_class(**entry))
+            row_count = len(model_instances)
+            
+            db.bulk_save(model_instances)
+        
         db.commit()
         
-        time_taken = time.clock() - start
-        print(f"Merged {num_merged} records in {time_taken:0.2} seconds")
+        seconds = time.clock() - start
+        minutes, seconds = divmod(seconds, 60)
+        
+        if minutes > 0:
+            time_taken = f"{minutes} minutes {seconds} seconds"
+        else:
+            time_taken = f"{seconds:2.2} seconds"
+        
+        print(f"Merged {row_count} records in {time_taken}")
 
 def main():
     
@@ -84,6 +103,8 @@ def main():
     parser.add_argument('--password', '-p', type=str,
                         help='the database user\'s password')
     # Extra options
+    parser.add_argument('--merge', '-m', action='store_true',
+                        help='merge rows if primary key already exists')
     parser.add_argument('--null-values', '-n', type=str, action='append',
                         help='values which should equal NULL in the database')
     parser.add_argument('--no-parse-null', '-N', action='store_false',
@@ -117,6 +138,6 @@ def main():
         'password': db_password,
     }
     
-    load_model(file_name, table_name, db_info,
+    load_model(file_name, table_name, db_info, merge=args.merge,
                null_values=args.null_values, use_default_null=args.no_parse_null,
                ignore_columns=args.ignore, parser_class=parser_class)
