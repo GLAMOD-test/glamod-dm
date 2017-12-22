@@ -72,9 +72,9 @@ def load_model(data_file, table_name, db_info, merge=False,
         minutes, seconds = divmod(seconds, 60)
         
         if minutes > 0:
-            time_taken = f"{minutes} minutes {seconds} seconds"
+            time_taken = f"{int(minutes)} minutes and {int(seconds)} seconds"
         else:
-            time_taken = f"{seconds:2.2} seconds"
+            time_taken = f"{seconds:.2f} seconds"
         
         print(f"Merged {row_count} records in {time_taken}")
 
