@@ -8,14 +8,8 @@ import argparse
 
 from getpass import getpass
 
-from glamod.db.db_manager import DBManager
-from glamod.db.table_constraints import TableConstraints
 
 from glamod.parser.csv.csv_parser import CsvParser
-from glamod.parser.xlsx.xlsx_parser import XlsxParser
-
-
-CONNECTION_TEMPLATE = 'postgresql://{user}:{password}@{host}:{port}/{database}'
 
 
 def load_model(data_file, table_name, db_info, merge=False,
@@ -78,9 +72,10 @@ def load_model(data_file, table_name, db_info, merge=False,
         
         print(f"Merged {row_count} records in {time_taken}")
 
+
 def main():
     
-    parser = argparse.ArgumentParser(description='Loads data from an XLSX file.')
+    parser = argparse.ArgumentParser(description='Parses and manages a GLAMOD data delivery')
     # File options
     parser.add_argument('file', type=str,
                         help='the name of the file to parse')

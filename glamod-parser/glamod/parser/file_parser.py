@@ -31,7 +31,7 @@ class FileParser(object):
     def parse_value(self, column_name, value):
         
         parsed_value = None
-        if value != None and not value in self._null_values:
+        if value != None and value not in self._null_values:
             try:
                 column_type = self._table_constraints.get_column_type(column_name)
                 if isinstance(value, column_type):
