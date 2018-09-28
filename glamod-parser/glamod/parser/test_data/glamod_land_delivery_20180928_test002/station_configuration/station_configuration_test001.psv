@@ -1,0 +1,121 @@
+primary_id|primary_id_scheme|record_number|secondary_id|secondary_id_scheme|station_name|station_abbreviation|alternative_name|station_crs|longitude|latitude|local_gravity|start_date|end_date|station_type|platform_type|platform_sub_type|operating_institute|operating_territory|city|contact|role|observing_frequency|reporting_time|telecommunication_method|station_automation|measuring_system_model|measuring_system_id|observed_variables|comment|optional_data|region|sub_region|data_policy_licence|station_record_number|primary_station_id_scheme|location_accuracy|location_method|location_quality|height_of_station_above_local_ground|height_of_station_above_sea_level|height_of_station_above_sea_level_accuracy|       sea_level_datum|source_id
+0-20000-0-03985-1|0|1|1875|3|Athenry|NULL|NULL|0|-8.785|53.287|NULL|2011|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Athenry|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|40|NULL|NULL|158
+0-20000-0-03979-1|0|1|675|3|Ballyhaise|NULL|NULL|0|-7.306|54.051|NULL|2004|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Ballyhaise|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|78|NULL|NULL|158
+0-20000-0-03976-1|0|1|2375|3|Belmullet|NULL|NULL|0|-10.004|54.223|NULL|1987|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Belmullet|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|9|NULL|NULL|158
+0-20000-0-03965-1|0|1|4919|3|Birr|NULL|NULL|0|-7.9|53.1|NULL|1954|2009|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Casement|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|NULL|NULL|NULL|158
+0-20000-0-03967-1|0|1|3723|3|Casement|NULL|NULL|0|-6.437|53.303|NULL|1987|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Claremorris|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|91|NULL|NULL|158
+0-20000-0-03970-1|0|1|2175|3|Claremorris|NULL|NULL|0|-9.901|53.322|NULL|2006|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Clones|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|21|NULL|NULL|158
+0-20000-0-03974-1|0|1|2437|3|Clones|NULL|NULL|0|-7.2|54.2|NULL|1951|2011|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|DublinAirport|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|NULL|NULL|NULL|158
+0-20000-0-03955-1|0|1|3904|3|CorkAirport|NULL|NULL|0|-8.485|51.842|NULL|1987|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Dunsany|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|155|NULL|NULL|158
+0-20000-0-03969-1|0|1|532|3|Dublinairport|NULL|NULL|0|-6.238|53.423|NULL|1987|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Finner|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|71|NULL|NULL|158
+0-20000-0-03968-1|0|1|1375|3|Dunsany|NULL|NULL|0|-6.656|53.51|NULL|2006|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Gurteen|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|83|NULL|NULL|158
+0-20000-0-03978-1|0|1|2075|3|Finner|NULL|NULL|0|-8.239|54.49|NULL|1997|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|JohnstownCastle|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|33|NULL|NULL|158
+0-20000-0-03966-1|0|1|1475|3|Gurteen|NULL|NULL|0|-8.005|53.052|NULL|2007|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Kilkenny|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|75|NULL|NULL|158
+0-20000-0-03956-1|0|1|475|3|JohnstownCastle|NULL|NULL|0|-6.491|52.292|NULL|2004|2015|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|MaceHead|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|62|NULL|NULL|158
+0-20000-0-03960-1|0|1|3613|3|Kilkenny|NULL|NULL|0|-7.3|52.7|NULL|1957|2008|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|MalinHead|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|NULL|NULL|NULL|158
+0-20000-0-03973-1|0|1|4937|3|Knock|NULL|NULL|0|-8.817|53.904|NULL|1996|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Markree|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|201|NULL|NULL|158
+0-20000-0-03963-1|0|1|275|3|MaceHead|NULL|NULL|0|-9.901|53.322|NULL|2006|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Moorepark|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|21|NULL|NULL|158
+0-20000-0-03980-1|0|1|1575|3|MalinHeadAuto|NULL|NULL|0|-7.339|55.372|NULL|1987|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Mullingar|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|20|NULL|NULL|158
+0-20000-0-03981-1|0|1|1275|3|Markree|NULL|NULL|0|-8.453|54.172|NULL|2007|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Newport|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|34|NULL|NULL|158
+0-20000-0-03958-1|0|1|575|3|Moorepark|NULL|NULL|0|-8.258|52.158|NULL|2003|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|OakPark|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|46|NULL|NULL|158
+0-20000-0-03975-1|0|1|1975|3|MountDillon|NULL|NULL|0|-7.975|53.723|NULL|2006|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|PhoenixPark|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|39|NULL|NULL|158
+0-20000-0-03971-1|0|1|2922|3|Mullingar|NULL|NULL|0|-7.357|53.536|NULL|1950|2008|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|RochesPoint|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|NULL|NULL|NULL|158
+0-20000-0-03984-1|0|1|1175|3|Newport|NULL|NULL|0|-9.57|53.92|NULL|2004|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Shannon|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|22|NULL|NULL|158
+0-20000-0-03961-1|0|1|375|3|OakPark|NULL|NULL|0|-6.909|52.857|NULL|2003|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|SherkinIsland|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|62|NULL|NULL|158
+0-20000-0-03982-1|0|1|175|3|PhoenixPark|NULL|NULL|0|-6.342|53.358|NULL|2007|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Valentia|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|48|NULL|NULL|158
+0-20000-0-03952-1|0|1|1004|3|RochesPoint(Manual)|NULL|NULL|0|-8.24|51.789|NULL|1955|2008|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|SherkinIsland|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|NULL|NULL|NULL|158
+0-20000-0-03957-1|0|1|2615|3|Rosslare|NULL|NULL|0|-6.3|52.3|NULL|1956|2007|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Valentia|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|NULL|NULL|NULL|158
+0-20000-0-03962-1|0|1|518|3|Shannon|NULL|NULL|0|-8.917|52.687|NULL|1987|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Shannon|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|5|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|15|NULL|NULL|158
+0-20000-0-03951-1|0|1|775|3|SherkinIsland|NULL|NULL|0|-9.423|51.472|NULL|2007|2017|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|SherkinIsland|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|1|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|21|NULL|NULL|158
+0-20000-0-03995-1|0|1|305|3|Valentia(Manual)|NULL|NULL|0|-10.238|51.936|NULL|1939|2012|1|NULL|NULL|Met Eireann 65_67 Glasnevin Hill Dublin 9 D09 Y921 Ireland Ireland|101|Shannon|{Mr,Seamus, Walsh, Met, Eireann, 65,67, Glasnevin, Hill, Dublin, 9, D09, Y921, Ireland}|Head of Climatology|0|NULL|NULL|1|NULL|NULL|{85,44 }|NULL|NULL|6|101|0|1|0|0.01|NULL|3|NULL|NULL|NULL|NULL|158
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||||||||||||||||||

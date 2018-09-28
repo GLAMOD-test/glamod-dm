@@ -5,5 +5,5 @@ Created on Dec 20, 2017
 '''
 
 
-class ParserException(Exception):
+class ParserError(Exception):
     pass

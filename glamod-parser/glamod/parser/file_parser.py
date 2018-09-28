@@ -10,7 +10,7 @@ import decimal
 from dateutil.parser import parse as dateutil_parse
 from datetime import datetime
 
-from glamod.parser.exceptions import ParserException
+from glamod.parser.exceptions import ParserError
 
 
 class FileParser(object):
@@ -49,7 +49,7 @@ class FileParser(object):
                         parsed_value = self.convert(value, column_type)
                 
             except (ValueError, decimal.InvalidOperation) as e:
-                raise ParserException(f"Failed to parse value '{value}' to {column_type} "
+                raise ParserError(f"Failed to parse value '{value}' to {column_type} "
                                       f"for column '{column_name}'") from e
         
         return parsed_value

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from glamod.parser.parse import main
+from glamod.parser.parse import *
 
-
-main()
+parse_delivery()

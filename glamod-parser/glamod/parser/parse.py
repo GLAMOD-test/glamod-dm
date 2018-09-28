@@ -1,80 +1,57 @@
 '''
-Created on Nov 28, 2017
+Created on 28/09/2018
 
-@author: William Tucker
+@author: Ag Stephens
 '''
 
-import argparse
+import os
 
-from getpass import getpass
+import click
+
+from glamod.parser.utils import timeit, unzip
+
+from glamod.parser.structure_check import *
+from glamod.parser.csv_parser.csv_parser import CsvParser
 
 
-from glamod.parser.csv.csv_parser import CsvParser
 
+@click.command()
+@click.option('--stations-only', is_flag=True, default=False, 
+              help='Only parse "SOURCE" and "STATION" configuration files.')
+@click.option('--working_dir', default='working_dir', 
+              help='Working directory to unzip files to.')
+@click.argument('location', type=click.Path(exists=True)) 
+def parse_delivery(location, stations_only=False, working_dir='working_dir'):
 
-def load_model(data_file, table_name, db_info, merge=False,
-               null_values=None, use_default_null=True,
-               ignore_columns=None, parser_class=CsvParser):
-    
-    connection_string = CONNECTION_TEMPLATE.format(**db_info)
-    
-    db_manager = DBManager(connection_string, db_info.get('schema'))
-    print(f"Connected to {db_info['database']}")
-    
-    model_class = db_manager.get_model_class(table_name)
-    table = db_manager.get_table(table_name)
-    constraints = TableConstraints(table)
-    
-    parser = parser_class(constraints,
-                          null_values=null_values,
-                          use_default_null=use_default_null)
-    
-    print(f"Parsing: {data_file}")
-    if ignore_columns:
-        print(f"Ignore columns: {' '.join(ignore_columns)}")
-    parsed_entries = parser.parse(data_file,
-                                  ignore_columns=ignore_columns)
-    
-    if (db_info.get('schema')):
-        print(f"Updating rows for {db_info['schema']}.{table_name}")
+    if os.path.isfile(location):
+        if not os.path.splitext(location)[-1] == '.zip':
+            raise ValueError('If "location" is a file it must end in ".zip".')
+
+        location = unzip(location, target_dir=working_dir)
+
+    if stations_only:
+        parse_source_and_station_configs(location)
     else:
-        print(f"Updating rows for {table_name}")
-    with db_manager as db:
-        
-        import time
-        start = time.clock()
-        
-        row_count = 0
-        if merge:
-            
-            for entry in parsed_entries:
-                db.merge(model_class(**entry))
-                row_count += 1
-            
-        else:
-            
-            model_instances = []
-            for entry in parsed_entries:
-                model_instances.append(model_class(**entry))
-            row_count = len(model_instances)
-            
-            db.bulk_save(model_instances)
-        
-        db.commit()
-        
-        seconds = time.clock() - start
-        minutes, seconds = divmod(seconds, 60)
-        
-        if minutes > 0:
-            time_taken = f"{int(minutes)} minutes and {int(seconds)} seconds"
-        else:
-            time_taken = f"{seconds:.2f} seconds"
-        
-        print(f"Merged {row_count} records in {time_taken}")
+        parse_complete_delivery(location)
 
-
-def main():
     
+@timeit
+def parse_source_and_station_configs(location):
+    print('[INFO] Beginning parsing of SOURCE and STATION files at: '
+          '{}'.format(location))
+    SourceAndStationConfigStructureCheck(location)
+ 
+
+@timeit
+def parse_complete_delivery(location):
+    print('[INFO] Beginning parsing of HEADER and OBSERVATIONS TABLE '
+          'files at:  {}'.format(location))
+    CompleteStructureCheck(location)
+
+
+def OLDmain():
+    
+
     parser = argparse.ArgumentParser(description='Parses and manages a GLAMOD data delivery')
     # File options
     parser.add_argument('file', type=str,
@@ -88,15 +65,8 @@ def main():
                         help='the host of the database server')
     parser.add_argument('--port', '-P', type=str, default='5432',
                         help='the port of the database server')
-    # Database options
-    parser.add_argument('--database', '-d', type=str,
-                        help='the name of the database')
-    parser.add_argument('--schema', '-s', type=str,
-                        help='the database schema to use')
-    parser.add_argument('--user', '-u', type=str,
-                        help='the database user')
-    parser.add_argument('--password', '-p', type=str,
-                        help='the database user\'s password')
+
+
     # Extra options
     parser.add_argument('--merge', '-m', action='store_true',
                         help='merge rows if primary key already exists')

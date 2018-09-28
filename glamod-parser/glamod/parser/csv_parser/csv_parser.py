@@ -5,7 +5,7 @@ Created on Dec 13, 2017
 '''
 
 from glamod.parser.file_parser import FileParser
-from glamod.parser.exceptions import ParserException
+from glamod.parser.exceptions import ParserError
 
 
 class CsvParser(FileParser):
@@ -53,7 +53,7 @@ class CsvParser(FileParser):
                         
                         try:
                             row[column_name] = self.parse_value(column_name, value)
-                        except ParserException as e:
+                        except ParserError as e:
                             import sys
                             raise type(e)(
                                 str(e) + f" at line {line_num}").with_traceback(
