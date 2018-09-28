@@ -54,12 +54,16 @@ order to identify the connection between the DDPs.
 
  2. Sub-directories:
    - There should be a number of sub-directories as specified here:
+
      i. `source_configuration/` - containing:
        - 1 x `source_configuration_<specifier>.psv`
+
      ii. `station_configuration/` - containing: 
        - 1 x `station_configuration_<specifier>.psv`
+
      iii. `header_table/` - containing:
        - N x `header_table_<specifier>_<label>.psv`
+
      iv. `observations_table/` - containing: 
        - N x `observations_table_<specifier>_<label>.psv`
 
