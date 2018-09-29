@@ -1,5 +1,6 @@
 
 import os
+import re
 
 
 from glamod.parser.exceptions import ParserError
@@ -8,9 +9,9 @@ from glamod.parser.settings import REGEX_SAFE
 
 class _StructureCheck(object):
 
-    _EXPECTED_DIRS = []
-    _EXPECTED_FILES = []
+    _EXPECTED_PAIRED_FILES = []
     
+
     def __init__(self, top_dir):
         self.top_dir = top_dir
         self._contents = os.listdir(self.top_dir)
@@ -24,21 +25,23 @@ class _StructureCheck(object):
         self._validate_files()
 
         # Run specific extras
-        self._specific_checks()
+#        self._specific_checks()
+
 
     def _specfic_checks(self):
         "To be over-ridden in sub-classes."
         raise NotImplementedError()
 
-    def _validate_sub_dirs(self):
 
+    def _validate_sub_dirs(self):
+        expected_dirs = set([os.path.dirname(path) for path in self._EXPECTED_PAIRED_FILES])
         errs = []
 
-        for dr in self._EXPECTED_DIRS:
+        for dr in expected_dirs:
             if dr not in self._contents:
                 errs.append('Required directory "{}" not found in delivery'.format(dr))
 
-        extras = set(self._EXPECTED_DIRS).symmetric_difference(set(self._contents))
+        extras = set(expected_dirs).symmetric_difference(set(self._contents))
 
         if extras:
             errs.append('Unexpected directories found: {}'.format(str(extras)))
@@ -54,23 +57,44 @@ class _StructureCheck(object):
     def _validate_files(self):
 
         errs = []
+        found_files = []
 
-        for fpath in self._EXPECTED_FILES:
-            dr, fname = os.path.split(fpath)
-            
-            contents = os.listdir(dr)
-            
+        for root, subdirs, files in os.walk(self.top_dir):
+            for fname in files:
+                found_files.append(os.path.join(root, fname))
+
+        self._files = []
+
+        for exp in self._EXPECTED_PAIRED_FILES: 
+            for found in found_files:
+                if re.match(exp, found.replace(self.top_dir + '/', '')):
+                    self._files.append(found)
+                    break
+            else:
+                errs.append('[ERROR] File with pattern "{}" not found'.format(exp))
+ 
+        if errs:
+            err_string = '\n' + ', \n'.join(errs)
+            raise ParserError('[ERROR] Errors found validating files: {}:'
+                              '{}'.format(self.top_dir, err_string))
 
         print('[INFO] Checked file structure (not content yet).')
 
+    def _validate_file_consistency(self):
+        
+        raise "OOOO"
 
 class SourceAndStationConfigStructureCheck(_StructureCheck):
 
-    _EXPECTED_FILES = [
+    _EXPECTED_PAIRED_FILES = [
         'source_configuration/source_configuration_({}+)\.psv'.format(REGEX_SAFE),
         'station_configuration/station_configuration_({}+)\.psv'.format(REGEX_SAFE) ]
 
+
 class CompleteStructureCheck(_StructureCheck):
 
-    _EXPECTED_DIRS = ['header_table', 'observations_table',
-                      'source_configuration', 'station_configuration']
+    _EXPECTED_PAIRED_FILES = [
+        'source_configuration/source_configuration_({}+)\.psv'.format(REGEX_SAFE),
+        'station_configuration/station_configuration_({}+)\.psv'.format(REGEX_SAFE),
+        'header_table/header_table_.*\.psv', 
+        'observations_table/observations_table_.*\.psv' ]
