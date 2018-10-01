@@ -10,6 +10,7 @@ import zipfile
 
 
 from glamod.parser.exceptions import ParserError
+from glamod.parser.settings import INPUT_ENCODING
 
 
 def timeit(method):
@@ -43,4 +44,22 @@ def unzip(location, target_dir):
 
     print('[INFO] Unzipped contents to: {}'.format(target_dir))
     return os.path.join(target_dir, expected_subdir)
+
+
+def report_errors(errs, msg_tmpl):
+    err_string = '\n' + ', \n'.join(errs)
+    raise ParserError(msg_tmpl.format(err_string))
+
+
+def count_lines(fpath):
+    count = 0
+
+    with open(fpath, 'r', encoding=INPUT_ENCODING) as reader:
+        for _ in reader:
+            count += 1
+
+    print('[INFO] File length of "{}" is: {}'.format(fpath, count))
+    return count
+
+
 
