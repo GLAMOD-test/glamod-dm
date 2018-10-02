@@ -3,7 +3,7 @@ import os
 import re
 
 
-from glamod.parser.utils import count_lines, report_errors
+from glamod.parser.utils import count_lines, report_errors, log
 from glamod.parser.exceptions import ParserError
 from glamod.parser.settings import REGEX_SAFE
 
@@ -19,7 +19,9 @@ class _StructureCheck(object):
  
         # The self._files property will be populated during the checks
         self._files = []
-        
+
+
+    def run(self):        
         self._validate()
 
 
@@ -30,6 +32,10 @@ class _StructureCheck(object):
 
         # Run specific extras
         self._specific_checks()
+
+    
+    def get_files(self):
+        return self._files
 
 
     def _specific_checks(self):
@@ -55,7 +61,7 @@ class _StructureCheck(object):
             raise ParserError('[ERROR] Errors found validating directory: {}:'
                               '{}'.format(self.top_dir, err_string))
           
-        print('[INFO] Checked: directory structure.')
+        log('INFO', 'Checked: directory structure.')
 
 
     def _validate_file_existence(self):
@@ -80,7 +86,7 @@ class _StructureCheck(object):
             raise ParserError('[ERROR] Errors found validating files: {}:'
                               '{}'.format(self.top_dir, err_string))
 
-        print('[INFO] Checked file structure (not content yet).')
+        log('INFO', 'Checked file structure (not content yet).')
 
 
 class SourceAndStationConfigStructureCheck(_StructureCheck):
@@ -125,5 +131,5 @@ class CompleteStructureCheck(_StructureCheck):
             raise ParserError('[ERROR] Errors found validating files: {}:'
                               '{}'.format(self.top_dir, err_string))
 
-        print('[INFO] Checked file structure (not content yet).')
+        log('INFO', 'Checked file structure (not content yet).')
 

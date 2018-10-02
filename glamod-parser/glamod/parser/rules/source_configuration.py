@@ -1,27 +1,40 @@
 """
 Rules for source_configuration files.
-""
+"""
+
+from collections import OrderedDict as OD
+
 
 class SourceConfigurationParserRules(object):
+    
+    fields = OD([
+        ('source_id', (str,)),
+        ('product_id', (str,)),
+        ('product_name', (str,)),
+        ('product_code', (str,)),
+        ('product_version', (str,)),
+        ('product_level', (str,)),
+        ('product_uri', (str,)),
+        ('description', (str,)),
+        ('product_references', (str,)),
+        ('product_citation', (str,)),
+        ('product_status', (str,)),
+        ('source_format', (str,)),
+        ('source_format_version', (str,)),
+        ('source_file', (str,)),
+        ('source_file_checksum', (str,)),
+        ('data_centre', (str,)),
+        ('data_centre_url', (str,)),
+        ('data_policy_licence', (str,)),
+        ('contact', (str,)),
+        ('contact_role', (str,)),
+        ('history', (str,)),
+        ('comments', (str,)),
+        ('timestamp', (str,)),
+        ('maintenance_and_update_frequency', (str,)),
+        ('optional_data', (str,))
+    ])
 
-    required_fields = ['source_id', 'product_id', 'product_name', 'product_code', 
-                       'product_version', 'product_level', 'product_uri', 
-                       'description', 'product_references', 'product_citation', 
-                       'product_status', 'source_format', 'source_format_version', 
-                       'source_file', 'source_file_checksum', 'data_centre', 
-                       'data_centre_url', 'data_policy_licence', 'contact', 
-                       'contact_role', 'history', 'comments', 'timestamp', 
-                       'maintenance_and_update_frequency', 'optional_data']
-
-
-    data_types = {
-       'col1': str,
-       'col2': int
-    }
-
-    defaults = {
-       'col2': 0
-    }
-
-
-
+    code_table_lookups = {
+        'source_format': 'SourceFormat' 
+        } 

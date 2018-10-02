@@ -7,10 +7,30 @@ Created on 28/09/2018
 import time
 import os
 import zipfile
+import logging
 
 
 from glamod.parser.exceptions import ParserError
-from glamod.parser.settings import INPUT_ENCODING
+
+# Following settings import includes all Django Models
+from glamod.parser.settings import *
+
+
+def log(level, msg):
+    """
+    Log message `msg` at level `level`.
+   
+    :param level: level of logging ('INFO', 'ERROR' etc..)
+    :param msg: message to log.
+    :return: None
+    """
+    level = level.upper()
+    _levels = ['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+
+    if level not in _levels:
+        raise KeyError('Unrecognised log level: {}'.format(level))
+
+    print('[{}] {}'.format(level, msg))
 
 
 def timeit(method):
@@ -20,13 +40,13 @@ def timeit(method):
         result = method(*args, **kw)
         te = time.time()
 
-        print('[INFO] TIMER: "{}" ran in: {:.5f} seconds'.format(method.__name__, (te - ts)))
+        log('INFO', 'TIMER: "{}" ran in: {:.5f} seconds'.format(method.__name__, (te - ts)))
         return result
     return timed
 
 
 def unzip(location, target_dir):
-    print('[INFO] Found zip file: {}'.format(location))
+    log('INFO', 'Found zip file: {}'.format(location))
     target_dir = os.path.abspath(target_dir)
 
     if not os.path.isdir(target_dir):
@@ -42,7 +62,7 @@ def unzip(location, target_dir):
         raise ParserError('[ERROR] Zip file must unzip to directory with identical name '
                           'with ".zip" extension removed. Not: \n{}'.format(str(contents))) 
 
-    print('[INFO] Unzipped contents to: {}'.format(target_dir))
+    log('INFO', 'Unzipped contents to: {}'.format(target_dir))
     return os.path.join(target_dir, expected_subdir)
 
 
@@ -58,8 +78,65 @@ def count_lines(fpath):
         for _ in reader:
             count += 1
 
-    print('[INFO] File length of "{}" is: {}'.format(fpath, count))
+    log('INFO', 'File length of "{}" is: {}'.format(fpath, count))
     return count
 
 
+def _map_file_type(lookup, reverse=False):
+    """
+    Generic mapper for file name to/from table name.
 
+    :param lookup: key to look up (file name or table name).
+    :param reverse: direction to do lookup.
+    :return: value (looked up in dictionary).
+    """
+    # If lookup key is a class then use its name here
+    if not isinstance(lookup, str):
+        lookup = lookup.__class__.__name__
+
+    _map = {
+        'source_configuration': 'SourceConfiguration',
+        'station_configuration': 'StationConfiguration',
+        'header_table': 'HeaderTable', 
+        'observations_table': 'ObservationsTable' }
+
+    if reverse:
+        dct = dict([(_value, _key) for _key, _value in _map.items()])
+    else:
+        dct = _map
+
+    for _key in dct:
+        if lookup.startswith(_key):
+            return dct[_key]
+
+    raise KeyError('Cannot lookup mapping for: {}'.format(lookup))
+
+
+def get_content_check(fpath):
+    fname = os.path.basename(fpath)
+
+    class_name = _map_file_type(fname) + 'ContentCheck'
+    mod = __import__('content_check')
+    return getattr(mod, class_name)(fpath)
+
+
+def _field_to_model_mapper(key, reverse=False):
+    _map = DB_MAPPINGS
+ 
+    if reverse:
+        dct = dict([(_value, _key) for _key, _value in _map.items()])
+    else:
+        dct = _map
+    
+    if key not in dct:
+        raise KeyError('Cannot lookup mapping for: {}'.format(key))    
+
+    return dct[key]
+
+
+def field_to_db_model(key):
+    return _field_to_model_mapper(key)
+
+
+def db_model_to_field(key):
+    return _field_to_model_mapper(key, reverse=True) 

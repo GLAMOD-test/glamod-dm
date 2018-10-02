@@ -1,93 +1,84 @@
 '''
-Created on Dec 13, 2017
+Created on 01 Oct 2018
 
-@author: William Tucker
+@author: Ag Stephens
 '''
 
-import re
-import decimal
-
-from dateutil.parser import parse as dateutil_parse
-from datetime import datetime
-
 from glamod.parser.exceptions import ParserError
+from glamod.parser.settings import INPUT_ENCODING
 
 
 class FileParser(object):
     
-    DEFAULT_NULL_VALUE = 'NULL'
-    
-    def __init__(self, table_constraints, null_values=None, use_default_null=True):
+    def __init__(self, fpath, delimiter='|'):
+        self.fpath = fpath 
+        self.delimiter = delimiter
+
+        self._fh = open(fpath, 'r', encoding=INPUT_ENCODING)
+        self._col_names = self._parse_header()
+
+
+    def _parse_header(self):
+        assert(self._fh.tell() == 0)
+        return self.readline()   
+
+
+    def readline(self):
+        "Reads next line and splits on delimiter."
+        return self._fh.readline().rstrip().split(self.delimiter)         
+
+
+    def get_column_names(self):
+        return self._col_names        
+
+      
+    def parse(self, file, delimiter='|', ignore_columns=None, ignore_strict=False):
         
-        self._table_constraints = table_constraints
-        
-        self._null_values = []
-        if use_default_null:
-            self._null_values.append(self.DEFAULT_NULL_VALUE)
-        
-        if null_values and len(null_values) > 0:
-            self._null_values += null_values
-    
-    def parse_value(self, column_name, value):
-        
-        parsed_value = None
-        if value != None and value not in self._null_values:
-            try:
-                column_type = self._table_constraints.get_column_type(column_name)
-                if isinstance(value, column_type):
-                    parsed_value = value
-                    
-                elif value:
-                    if self._table_constraints.is_list_type(column_name):
-                        column_type = self._table_constraints.get_column_item_type(
-                                column_name)
-                        
-                        values_list = self.cell_value_to_list(str(value))
-                        parsed_value = [self.convert(value, column_type)
-                                        for value in values_list]
-                    else:
-                        parsed_value = self.convert(value, column_type)
+        with open(file, encoding='iso-8859-1') as csv_file:
+            
+            header = csv_file.readline()
+            columns = []
+            column_index = 0
+            for name in header.split(delimiter):
                 
-            except (ValueError, decimal.InvalidOperation) as e:
-                raise ParserError(f"Failed to parse value '{value}' to {column_type} "
-                                      f"for column '{column_name}'") from e
-        
-        return parsed_value
-    
-    @staticmethod
-    def convert(value, data_type):
-        
-        if data_type == datetime:
-            return FileParser.parse_datetime(value)
-        else:
-            return data_type(value)
-    
-    @staticmethod
-    def cell_value_to_list(value, delimiter=','):
-        
-        expression = re.compile('^{(.*)}$')
-        match = expression.match(value)
-        
-        if match:
-            if match.group(1):
-                return match.group(1).split(delimiter)
-            else:
-                return []
-        else:
-            return [value]
-    
-    @staticmethod
-    def parse_datetime(value):
-        
-        try:
-            return datetime(value)
+                column_name = name.strip()
+                if not ignore_columns or not column_name in ignore_columns:
+                    
+                    if not self._table_constraints.is_column(column_name):
+                        raise ValueError(
+                            f"'{column_name}' is not a column of {self._table_constraints.name}")
+                    
+                    columns.append((column_index, column_name))
+                
+                column_index += 1
             
-        except TypeError:
+            if ignore_strict and ignore_columns:
+                
+                _, column_names = zip(*columns)
+                for ignore_column in ignore_columns:
+                    if not ignore_column in column_names:
+                        raise ValueError(f"'{ignore_column}' column from ignore list not "
+                                         "present in file. Use ignore_strict=False to disable")
             
-            if (isinstance(value, int)):
-                return datetime(value, 1, 1)
-            else:
-                try:
-                    return dateutil_parse(value)
-                except TypeError:
-                    raise(ValueError(f"Invalid datetime format: {value}"))
+            for line_index, line in enumerate(csv_file):
+                
+                line_num = line_index + 2
+                
+                if line and line.strip() != '':
+                    
+                    row = {}
+                    values = [value.strip() for value in line.split(delimiter)]
+                    
+                    for column_index, column_name in columns:
+                        
+                        value = values[column_index]
+                        
+                        try:
+                            row[column_name] = self.parse_value(column_name, value)
+                        except ParserError as e:
+                            import sys
+                            raise type(e)(
+                                str(e) + f" at line {line_num}").with_traceback(
+                                    sys.exc_info()[2])
+                    
+                    yield row

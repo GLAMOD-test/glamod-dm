@@ -8,10 +8,9 @@ import os
 
 import click
 
-from glamod.parser.utils import timeit, unzip
+from glamod.parser.utils import timeit, unzip, log, get_content_check
 
 from glamod.parser.structure_check import *
-from glamod.parser.csv_parser.csv_parser import CsvParser
 
 
 @click.command()
@@ -33,19 +32,36 @@ def parse_delivery(location, stations_only=False, working_dir='working_dir'):
     else:
         parse_complete_delivery(location)
 
+
+def _run_content_checks(fpaths):
+    
+    for fpath in fpaths:
+        content_check = get_content_check(fpath)
+        content_check.run()
+
     
 @timeit
 def parse_source_and_station_configs(location):
-    print('[INFO] Beginning parsing of SOURCE and STATION files at: '
+    log('INFO', 'Beginning parsing of SOURCE and STATION files at: '
           '{}'.format(location))
-    SourceAndStationConfigStructureCheck(location)
- 
+
+    structure_check = SourceAndStationConfigStructureCheck(location)
+    structure_check.run()
+    _run_content_checks(structure_check.get_files())
+    
+     
     
 
 @timeit
 def parse_complete_delivery(location):
-    print('[INFO] Beginning parsing of HEADER and OBSERVATIONS TABLE '
+    log('INFO', 'Beginning parsing of HEADER and OBSERVATIONS TABLE '
           'files at:  {}'.format(location))
-    CompleteStructureCheck(location)
+
+    structure_check = CompleteStructureCheck(location)
+    structure_check.run()
+    _run_content_checks(structure_check.get_files())
+
+
+
 
 
