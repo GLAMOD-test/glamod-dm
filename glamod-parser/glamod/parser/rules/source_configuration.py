@@ -2,14 +2,15 @@
 Rules for source_configuration files.
 """
 
+from dateutil.parser import parser as date_parser
 from collections import OrderedDict as OD
 
 
 class SourceConfigurationParserRules(object):
     
     fields = OD([
-        ('source_id', (str,)),
-        ('product_id', (str,)),
+        ('source_id', (int,)),
+        ('product_id', (None,)),
         ('product_name', (str,)),
         ('product_code', (str,)),
         ('product_version', (str,)),
@@ -19,7 +20,7 @@ class SourceConfigurationParserRules(object):
         ('product_references', (str,)),
         ('product_citation', (str,)),
         ('product_status', (str,)),
-        ('source_format', (str,)),
+        ('source_format', (int,)),
         ('source_format_version', (str,)),
         ('source_file', (str,)),
         ('source_file_checksum', (str,)),
@@ -30,9 +31,9 @@ class SourceConfigurationParserRules(object):
         ('contact_role', (str,)),
         ('history', (str,)),
         ('comments', (str,)),
-        ('timestamp', (str,)),
-        ('maintenance_and_update_frequency', (str,)),
-        ('optional_data', (str,))
+        ('timestamp', (None,)),
+        ('maintenance_and_update_frequency', (int,)),
+        ('optional_data', (int,))
     ])
 
     code_table_lookups = {

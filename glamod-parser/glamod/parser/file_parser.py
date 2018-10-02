@@ -5,12 +5,12 @@ Created on 01 Oct 2018
 '''
 
 from glamod.parser.exceptions import ParserError
-from glamod.parser.settings import INPUT_ENCODING
+from glamod.parser.settings import INPUT_ENCODING, INPUT_DELIMITER
 
 
 class FileParser(object):
     
-    def __init__(self, fpath, delimiter='|'):
+    def __init__(self, fpath, delimiter=INPUT_DELIMITER):
         self.fpath = fpath 
         self.delimiter = delimiter
 
@@ -32,7 +32,7 @@ class FileParser(object):
         return self._col_names        
 
       
-    def parse(self, file, delimiter='|', ignore_columns=None, ignore_strict=False):
+    def OLDparse(self, file, delimiter='|', ignore_columns=None, ignore_strict=False):
         
         with open(file, encoding='iso-8859-1') as csv_file:
             

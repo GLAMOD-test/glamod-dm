@@ -10,7 +10,8 @@ Plan for generic content check:
 
 from glamod.parser.utils import log
 from glamod.parser.file_parser import FileParser
-from glamod.parser.rules import SourceConfigurationParserRules
+from glamod.parser.rules import (
+     SourceConfigurationParserRules, StationConfigurationParserRules )
 #from glamod.parser.field_check import FieldCheck
 
 
@@ -18,8 +19,6 @@ from glamod.parser.rules import SourceConfigurationParserRules
 class _ContentCheck(object):
 
     _rules = None
-######## Does this belong here??? #############
-    CHUNK_SIZE = 10000 # Rows to write to cached files (ready for writing to DB)
 
     def __init__(self, fpath):
         self.fpath = fpath
@@ -42,8 +41,11 @@ class _ContentCheck(object):
         actual = self._parser.get_column_names()
 
         if expected != actual:
-            raise Exception('Column names are incorrect in file: {}\n\tShould be: {}'.format(
-                            self.fpath, expected))
+            diff = list(set(expected).symmetric_difference(actual)) 
+            raise Exception('Column names are incorrect in file: {}'
+                            '\n\n\tShould be: {}\n\n\tThe DIFFERENCE was '
+                            'identified as: {}'.format(
+                            self.fpath, expected, diff))
 
 
     def _run_batch_lookups_of_code_tables(self):
@@ -58,9 +60,10 @@ class SourceConfigurationContentCheck(_ContentCheck):
         super(SourceConfigurationContentCheck, self).run()
         log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
 
-
 class StationConfigurationContentCheck(_ContentCheck):
 
-   def run(self):
+    _rules = StationConfigurationParserRules    
+
+    def run(self):
         super(StationConfigurationContentCheck, self).run()
 
