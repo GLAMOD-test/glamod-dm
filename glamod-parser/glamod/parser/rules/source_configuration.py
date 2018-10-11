@@ -5,6 +5,9 @@ Rules for source_configuration files.
 from dateutil.parser import parser as date_parser
 from collections import OrderedDict as OD
 
+from glamod.parser.convertors import *
+from glamod.parser.settings import *
+
 
 class SourceConfigurationParserRules(object):
     
@@ -14,13 +17,13 @@ class SourceConfigurationParserRules(object):
         ('product_name', (str,)),
         ('product_code', (str,)),
         ('product_version', (str,)),
-        ('product_level', (str,)),
+        ('product_level', (int_or_empty,)),
         ('product_uri', (str,)),
         ('description', (str,)),
         ('product_references', (str,)),
         ('product_citation', (str,)),
         ('product_status', (str,)),
-        ('source_format', (int,)),
+        ('source_format', (int_or_empty,)),
         ('source_format_version', (str,)),
         ('source_file', (str,)),
         ('source_file_checksum', (str,)),
@@ -32,10 +35,23 @@ class SourceConfigurationParserRules(object):
         ('history', (str,)),
         ('comments', (str,)),
         ('timestamp', (None,)),
-        ('maintenance_and_update_frequency', (int,)),
-        ('optional_data', (int,))
+        ('maintenance_and_update_frequency', (int_or_empty,)),
+        ('optional_data', (int_or_empty,))
     ])
 
-    code_table_lookups = {
-        'source_format': 'SourceFormat' 
-        } 
+    index_field = 'source_id'
+
+    code_table_fields = OD([
+        ('product_level', ProductLevel), 
+        ('product_status', ProductStatus),
+        ('source_format', SourceFormat),
+        ('data_policy_licence', DataPolicyLicence),
+        ('contact_role', Role),
+        ('maintenance_and_update_frequency', UpdateFrequency),
+        ('optional_data', DataPresent)
+    ])
+
+    foreign_fields_to_add = OD([
+        ('contact', Contact),
+        ('data_centre', Organisation),
+    ])

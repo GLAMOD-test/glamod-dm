@@ -9,8 +9,8 @@ class StationConfigurationParserRules(object):
 
     fields = OD([
         ('primary_id', (str,)),
-        ('primary_id_scheme', (str,)),
-        ('record_number', (str,)),
+        ('primary_id_scheme', (int,)),
+        ('record_number', (int,)),
         ('secondary_id', (str,)),
         ('secondary_id_scheme', (str,)),
         ('station_name', (str,)),
@@ -52,5 +52,13 @@ class StationConfigurationParserRules(object):
         ('height_of_station_above_sea_level_accuracy', (str,)),
         ('sea_level_datum', (str,)),
         ('source_id', (str,))
+    ])
+
+    index_field = 'primary_id'
+
+    code_table_fields = OD([
+    ])
+
+    foreign_fields_to_add = OD([
     ])
 

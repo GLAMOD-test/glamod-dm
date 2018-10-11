@@ -133,3 +133,7 @@ class CompleteStructureCheck(_StructureCheck):
 
         log('INFO', 'Checked file structure (not content yet).')
 
+
+class HeaderStructureCheck(_StructureCheck): pass
+
+class ObservationsStructureCheck(_StructureCheck): pass

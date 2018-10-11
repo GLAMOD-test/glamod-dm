@@ -7,13 +7,16 @@ Plan for generic content check:
 
 """
 
+import copy
 
-from glamod.parser.utils import log
+import pandas
+import numpy
+
+from glamod.parser.settings import INPUT_ENCODING, INPUT_DELIMITER, INT_NAN
+from glamod.parser.utils import log, db_model_to_field
 from glamod.parser.file_parser import FileParser
 from glamod.parser.rules import (
      SourceConfigurationParserRules, StationConfigurationParserRules )
-#from glamod.parser.field_check import FieldCheck
-
 
 
 class _ContentCheck(object):
@@ -49,7 +52,67 @@ class _ContentCheck(object):
 
 
     def _run_batch_lookups_of_code_tables(self):
-        pass          
+        fields = copy.deepcopy(self._rules.fields)         
+        col_names = [key for key in fields.keys()]
+
+        for key in col_names:
+            fields[key] = fields[key][0]
+
+        index_field = self._rules.index_field
+        code_table_fields_dct = self._rules.code_table_fields
+
+        columns = [index_field] + [_key for _key in code_table_fields_dct.keys()]
+
+        # Cache a DataFrame with all required columns
+        df = self._parser.get_subset_dataframe(convertors=fields, columns=columns)
+
+        for lookup_col, _model in code_table_fields_dct.items():
+
+            log('INFO', 'Checking column "{}" in: {}'.format(lookup_col, self.fpath))
+            self._check_lookups_exist_in_code_table(df[lookup_col], df[index_field],
+                                                    _model)
+        
+
+    def _check_lookups_exist_in_code_table(self, values, indexes, model):
+        assert(len(values)==len(indexes))
+        dct = {}
+
+        for i in range(len(values)):
+            value = values[i]
+            if value == INT_NAN: continue
+
+            dct.setdefault(value, [])
+            dct[value].append(indexes[i])
+
+        # Check each value only once and record those not found
+        not_found = {}
+
+        for value in sorted(list(set(dct.keys()))):
+            try:
+                _check = model.objects.filter(pk=value)
+            except:
+                log('ERROR', 'Could not lookup value "{}" in code table, so IGNORING check.'
+                             .format(value))
+                continue
+
+            if not _check:
+                not_found[value] = dct[value]
+
+        if not_found:
+            log('ERROR', 'The following record IDs were not found in table "{}":'.format(
+                  db_model_to_field(model.__name__)))
+
+            for key in sorted(not_found.keys()):
+                if type(key) == int: 
+                    format = '{:8d}'
+                else:
+                    format = '{}'
+
+                _tmpl = '\tUnmatched ID:  ' + format + '; Record indexes: {}'
+                print(_tmpl.format(key, not_found[key]))
+
+        return not_found
+
 
 
 class SourceConfigurationContentCheck(_ContentCheck):

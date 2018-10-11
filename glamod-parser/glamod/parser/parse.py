@@ -14,12 +14,12 @@ from glamod.parser.structure_check import *
 
 
 @click.command()
-@click.option('--stations-only', is_flag=True, default=False, 
+@click.option('-t', '--del-type', type=click.Choice(['source', 'data']),
               help='Only parse "SOURCE" and "STATION" configuration files.')
-@click.option('--working_dir', default='working_dir', 
+@click.option('-d', '--working_dir', default='working_dir', 
               help='Working directory to unzip files to.')
 @click.argument('location', type=click.Path(exists=True)) 
-def parse_delivery(location, stations_only=False, working_dir='working_dir'):
+def parse_delivery(location, del_type, working_dir='working_dir'):
 
     if os.path.isfile(location):
         if not os.path.splitext(location)[-1] == '.zip':
@@ -27,10 +27,12 @@ def parse_delivery(location, stations_only=False, working_dir='working_dir'):
 
         location = unzip(location, target_dir=working_dir)
 
-    if stations_only:
-        parse_source_and_station_configs(location)
+    if del_type == 'source':
+        parse_source_station_delivery(location)
+    elif del_type == 'data':
+        parse_data_delivery(location)
     else:
-        parse_complete_delivery(location)
+        raise ValueError('Unknown delivery type: {}'.format(del_type))
 
 
 def _run_content_checks(fpaths):
@@ -41,7 +43,7 @@ def _run_content_checks(fpaths):
 
     
 @timeit
-def parse_source_and_station_configs(location):
+def parse_source_station_delivery(location):
     log('INFO', 'Beginning parsing of SOURCE and STATION files at: '
           '{}'.format(location))
 
@@ -53,12 +55,16 @@ def parse_source_and_station_configs(location):
     
 
 @timeit
-def parse_complete_delivery(location):
+def parse_data_delivery(location):
     log('INFO', 'Beginning parsing of HEADER and OBSERVATIONS TABLE '
           'files at:  {}'.format(location))
 
-    structure_check = CompleteStructureCheck(location)
-    structure_check.run()
+    structure_checks = [HeaderStructureCheck, ObservationsStructureCheck]
+ 
+    for structure_check in structure_checks:
+        check = structure_check(location)
+        check.run()
+    
     _run_content_checks(structure_check.get_files())
 
 

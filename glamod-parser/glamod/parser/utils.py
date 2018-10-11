@@ -9,11 +9,19 @@ import os
 import zipfile
 import logging
 
+logger = None
 
 from glamod.parser.exceptions import ParserError
 
 # Following settings import includes all Django Models
 from glamod.parser.settings import *
+
+
+def _get_logger():
+    if logger: return logger
+
+    logger = logging.getLogger(__file__)
+    return logger
 
 
 def log(level, msg):

@@ -18,3 +18,7 @@ INPUT_DELIMITER = '|'
 INPUT_ENCODING = 'windows-1252'
 
 DB_MAPPINGS = dict([(re.sub('s$', '', _value), _key) for _key, _value in _ALL_MODELS.items()])
+
+INT_NAN = -9999
+
+VERBOSE_LOGGING = False
