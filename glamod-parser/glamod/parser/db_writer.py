@@ -1,11 +1,16 @@
 import copy
 
+from django.db import transaction
+
+
 from glamod.parser.settings import *
 from glamod.parser.utils import log, timeit
 from glamod.parser.chunk_manager import ChunkManager
 
 from glamod.parser.rules import (SourceConfigurationParserRules,
     StationConfigurationParserRules)
+
+
 
 
 class _DBWriterBase(object):
@@ -26,9 +31,17 @@ class _DBWriterBase(object):
         while 1:
             try:
                 df = self.cm.get_next_chunk()
-                self._write_chunk(df)
+
+                try:
+                    # Write all these changes atomically
+                    with transaction.atomic():
+                        self._write_chunk(df)
+                except Exception as err:
+                    raise Exception(err)
+
             except IOError:
                 break
+
 
     def _write_chunk(self, df):
         raise NotImplementedError
@@ -52,33 +65,60 @@ class SourceConfigurationDBWriter(_DBWriterBase):
         rec = copy.deepcopy(record)
 
         for fk_field, (fk_model, fk_arg, is_primary_key) in self.rules.foreign_key_fields_to_add.items():
-            if rec[fk_field] == INT_NAN and is_primary_key:
+            if fk_arg == 'contact_id':
+                pass #import pdb; pdb.set_trace()
+
+            value = rec[fk_field]
+
+            if value == INT_NAN and is_primary_key:
                 log('DEBUG', f'Ignoring NAN field for: {fk_field}')
                 del rec[fk_field]
                 continue
 
             log('WARN', 'Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
-            if is_primary_key:
-                kwargs = {'pk': rec[fk_field]}
+
+            # Since some are lists we need to manage them differently
+            if type(value) == list:
+
+                for item in value:
+                    kwargs = self._get_fk_kwargs(fk_model, item, fk_arg, is_primary_key)
+                    self._get_or_create(fk_model, kwargs)
+
+                # Don't set the FK field here as already set as: value
+
             else:
-                pk = fk_model.objects.count()
-                kwargs = {'pk': pk, fk_arg: rec[fk_field]}
-
-            fk_obj, created = fk_model.objects.get_or_create(**kwargs)
-            if created:
-                log('INFO', 'Created foreign key record: {}'.format(fk_obj))
-
-            rec[fk_field] = fk_obj
+                kwargs = self._get_fk_kwargs(fk_model, value, fk_arg, is_primary_key)
+                fk_obj = self._get_or_create(fk_model, kwargs)
+                rec[fk_field] = fk_obj
 
         try:
             _, created = self.app_model.objects.get_or_create(**rec)
         except Exception as err:
-            import pdb; pdb.set_trace()
             print(str(rec))
             raise Exception(err)
 
 
         print('Was it created? {}'.format(str(created)))
+
+
+    def _get_fk_kwargs(self, fk_model, value, fk_arg, is_primary_key):
+        if is_primary_key:
+            kwargs = {'pk': value}
+        else:
+            pk = fk_model.objects.count()
+            kwargs = {'pk': pk, fk_arg: value}
+
+        return kwargs
+
+
+    def _get_or_create(self, db_model, kwargs):
+        obj, created = db_model.objects.get_or_create(**kwargs)
+
+        if created:
+            log('INFO', 'Created record: {}'.format(obj))
+
+        return obj
+
 
 class StationConfigurationDBWriter(_DBWriterBase):
 
@@ -87,7 +127,7 @@ class StationConfigurationDBWriter(_DBWriterBase):
 
     def _write_chunk(self, df):
         raise NotImplementedError
-        for record in df.to_dict('records'):
+        for record in df.to_dict('records')[:4]:
             print(record)
 
 

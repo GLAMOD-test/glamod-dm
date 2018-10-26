@@ -19,8 +19,8 @@ class SourceConfigurationParserRules(_ParserRulesBase):
         ('product_level', (int_or_empty,)),
         ('product_uri', (str,)),
         ('description', (str,)),
-        ('product_references', (str,)),
-        ('product_citation', (str,)),
+        ('product_references', (list_of_strs,)),
+        ('product_citation', (list_of_strs,)),
         ('product_status', (str,)),
         ('source_format', (int_or_empty,)),
         ('source_format_version', (str,)),
@@ -29,8 +29,8 @@ class SourceConfigurationParserRules(_ParserRulesBase):
         ('data_centre', (str,)),
         ('data_centre_url', (str,)),
         ('data_policy_licence', (str,)),
-        ('contact', (str,)),
-        ('contact_role', (str,)),
+        ('contact', (list_of_strs,)),
+        ('contact_role', (list_of_ints,)),
         ('history', (str,)),
         ('comments', (str,)),
         ('timestamp', (timestamp_or_empty,)),
@@ -57,7 +57,10 @@ class SourceConfigurationParserRules(_ParserRulesBase):
     foreign_key_fields_to_add = OD([
         ('product_level', (ProductLevel, 'description', False)),
         ('product_status', (ProductStatus, 'description', False)),
+        ('source_format', (SourceFormat, 'format', True)),
         ('contact', (Contact, 'contact_id', True)),
+        ('maintenance_and_update_frequency', (UpdateFrequency, 'frequency', True)),
         ('data_centre', (Organisation, 'organisation_id', True)),
-        ('data_policy_licence', (DataPolicyLicence, 'description', False))
+        ('data_policy_licence', (DataPolicyLicence, 'description', False)),
+        ('optional_data', (DataPresent, 'flag', True))
     ])
