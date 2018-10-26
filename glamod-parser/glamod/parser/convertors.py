@@ -2,8 +2,6 @@
 from dateutil.parser import parser as timestamp
 from functools import wraps
 
-import numpy
-
 from glamod.parser.complex_types import *
 from glamod.parser.settings import INT_NAN
 
@@ -17,9 +15,10 @@ def prestrip(func):
     return _wrapped_strip
         
 
-def _x_or_empty(value, conv_func):
+def _x_or_empty(value, conv_func, default=INT_NAN):
     if value == '':
-        return INT_NAN
+        return default
+
     return conv_func(value)
 
 
@@ -29,6 +28,10 @@ def int_or_empty(value):
 
 def float_or_empty(value):
     return _x_or_empty(value, float)
+
+
+def timestamp_or_empty(value):
+    return _x_or_empty(value, timestamp, default=None)
 
 
 def _as_list(value):

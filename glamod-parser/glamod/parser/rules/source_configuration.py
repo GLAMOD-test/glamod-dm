@@ -33,7 +33,7 @@ class SourceConfigurationParserRules(_ParserRulesBase):
         ('contact_role', (str,)),
         ('history', (str,)),
         ('comments', (str,)),
-        ('timestamp', (None,)),
+        ('timestamp', (timestamp_or_empty,)),
         ('maintenance_and_update_frequency', (int_or_empty,)),
         ('optional_data', (int_or_empty,))
     ])
@@ -44,13 +44,20 @@ class SourceConfigurationParserRules(_ParserRulesBase):
         ('product_level', ProductLevel), 
         ('product_status', ProductStatus),
         ('source_format', SourceFormat),
+        ('data_centre', Organisation),
         ('data_policy_licence', DataPolicyLicence),
+        ('contact', Contact),
         ('contact_role', Role),
         ('maintenance_and_update_frequency', UpdateFrequency),
         ('optional_data', DataPresent)
     ])
 
-    foreign_fields_to_add = OD([
-        ('contact', Contact),
-        ('data_centre', Organisation),
+    # Structure of foreign key mappings:
+    #   {<field_name>: (<app_model>, <field_to_write_to>, <is_primary_key>[BOOL])}
+    foreign_key_fields_to_add = OD([
+        ('product_level', (ProductLevel, 'description', False)),
+        ('product_status', (ProductStatus, 'description', False)),
+        ('contact', (Contact, 'contact_id', True)),
+        ('data_centre', (Organisation, 'organisation_id', True)),
+        ('data_policy_licence', (DataPolicyLicence, 'description', False))
     ])

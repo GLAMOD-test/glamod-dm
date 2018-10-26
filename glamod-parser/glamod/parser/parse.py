@@ -54,4 +54,7 @@ def parse_data_delivery(location):
 
 
 
+if __name__ == '__main__':
+
+    parse_delivery()
 

@@ -13,7 +13,7 @@ from glamod.parser.settings import INPUT_ENCODING, INPUT_DELIMITER, INT_NAN
 from glamod.parser.utils import log, db_model_to_field
 from glamod.parser.file_parser import FileParser
 from glamod.parser.rules import (
-     SourceConfigurationParserRules, StationConfigurationParserRules )
+     SourceConfigurationParserRules, StationConfigurationParserRules)
 
 
 class _ContentCheck(object):

@@ -33,7 +33,7 @@ def log(level, msg):
     :return: None
     """
     level = level.upper()
-    _levels = ['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    _levels = ['NOTSET', 'DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'CRITICAL']
 
     if level not in _levels:
         raise KeyError('Unrecognised log level: {}'.format(level))
