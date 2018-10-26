@@ -48,7 +48,8 @@ def timeit(method):
         result = method(*args, **kw)
         te = time.time()
 
-        log('INFO', 'TIMER: "{}" ran in: {:.5f} seconds'.format(method.__name__, (te - ts)))
+        method_name = method.__qualname__
+        log('INFO', 'TIMED FUNCTION: "{}" ran in: {:.5f} seconds'.format(method_name, (te - ts)))
         return result
     return timed
 
@@ -57,8 +58,7 @@ def unzip(location, target_dir):
     log('INFO', 'Found zip file: {}'.format(location))
     target_dir = os.path.abspath(target_dir)
 
-    if not os.path.isdir(target_dir):
-        os.mkdir(target_dir)
+    safe_mkdir(target_dir)
 
     with zipfile.ZipFile(location, 'r') as zip_ref:
         zip_ref.extractall(target_dir)
@@ -90,7 +90,7 @@ def count_lines(fpath):
     return count
 
 
-def _map_file_type(lookup, reverse=False):
+def map_file_type(lookup, reverse=False):
     """
     Generic mapper for file name to/from table name.
 
@@ -98,6 +98,9 @@ def _map_file_type(lookup, reverse=False):
     :param reverse: direction to do lookup.
     :return: value (looked up in dictionary).
     """
+    # Just use the file name (if relevant)
+    lookup = os.path.basename(lookup)
+
     # If lookup key is a class then use its name here
     if not isinstance(lookup, str):
         lookup = lookup.__class__.__name__
@@ -106,7 +109,7 @@ def _map_file_type(lookup, reverse=False):
         'source_configuration': 'SourceConfiguration',
         'station_configuration': 'StationConfiguration',
         'header_table': 'HeaderTable', 
-        'observations_table': 'ObservationsTable' }
+        'observations_table': 'ObservationsTable'}
 
     if reverse:
         dct = dict([(_value, _key) for _key, _value in _map.items()])
@@ -118,14 +121,6 @@ def _map_file_type(lookup, reverse=False):
             return dct[_key]
 
     raise KeyError('Cannot lookup mapping for: {}'.format(lookup))
-
-
-def get_content_check(fpath):
-    fname = os.path.basename(fpath)
-
-    class_name = _map_file_type(fname) + 'ContentCheck'
-    mod = __import__('content_check')
-    return getattr(mod, class_name)(fpath)
 
 
 def _field_to_model_mapper(key, reverse=False):
@@ -148,3 +143,18 @@ def field_to_db_model(key):
 
 def db_model_to_field(key):
     return _field_to_model_mapper(key, reverse=True) 
+
+
+def get_path_sub_dirs(path, depth=1):
+    """
+    Returns a sub-directory tree under a path to the depth specified.
+    """
+    dir_path = os.path.abspath(os.path.dirname(path))
+    items = dir_path.strip('/').split('/')
+
+    return '/'.join(items[-(depth):])
+
+
+def safe_mkdir(dr):
+    if not os.path.isdir(dr):
+        os.makedirs(dr)

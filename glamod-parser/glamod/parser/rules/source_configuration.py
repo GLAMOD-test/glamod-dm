@@ -2,14 +2,13 @@
 Rules for source_configuration files.
 """
 
-from dateutil.parser import parser as date_parser
-from collections import OrderedDict as OD
-
 from glamod.parser.convertors import *
 from glamod.parser.settings import *
 
+from ._base import OD, _ParserRulesBase
 
-class SourceConfigurationParserRules(object):
+
+class SourceConfigurationParserRules(_ParserRulesBase):
     
     fields = OD([
         ('source_id', (int,)),

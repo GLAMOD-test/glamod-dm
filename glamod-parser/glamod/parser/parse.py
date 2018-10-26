@@ -8,9 +8,9 @@ import os
 
 import click
 
-from glamod.parser.utils import timeit, unzip, log, get_content_check
-
-from glamod.parser.structure_check import *
+from glamod.parser.utils import timeit, unzip, log
+from glamod.parser.processors import (SourceAndStationConfigProcessor,
+                                      HeaderAndObsTableProcessor)
 
 
 @click.command()
@@ -35,38 +35,22 @@ def parse_delivery(location, del_type, working_dir='working_dir'):
         raise ValueError('Unknown delivery type: {}'.format(del_type))
 
 
-def _run_content_checks(fpaths):
-    
-    for fpath in fpaths:
-        content_check = get_content_check(fpath)
-        content_check.run()
-
-    
 @timeit
 def parse_source_station_delivery(location):
     log('INFO', 'Beginning parsing of SOURCE and STATION files at: '
           '{}'.format(location))
 
-    structure_check = SourceAndStationConfigStructureCheck(location)
-    structure_check.run()
-    _run_content_checks(structure_check.get_files())
-    
-     
+    processor = SourceAndStationConfigProcessor(location)
+    processor.run()
     
 
 @timeit
 def parse_data_delivery(location):
     log('INFO', 'Beginning parsing of HEADER and OBSERVATIONS TABLE '
-          'files at:  {}'.format(location))
+          'files at: {}'.format(location))
 
-    structure_checks = [HeaderStructureCheck, ObservationsStructureCheck]
- 
-    for structure_check in structure_checks:
-        check = structure_check(location)
-        check.run()
-    
-    _run_content_checks(structure_check.get_files())
-
+    processor = HeaderAndObsTableProcessor(location)
+    processor.run()
 
 
 

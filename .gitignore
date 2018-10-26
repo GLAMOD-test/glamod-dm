@@ -102,3 +102,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+glamod-parser/glamod/parser/chunk-cache/
+glamod-parser/glamod/parser/working_dir/
+setup_env.sh
+.idea
+glamod-parser/glamod/parser/clean.sh
+glamod-parser/test_data

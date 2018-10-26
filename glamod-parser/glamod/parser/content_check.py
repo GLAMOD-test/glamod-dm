@@ -9,9 +9,6 @@ Plan for generic content check:
 
 import copy
 
-import pandas
-import numpy
-
 from glamod.parser.settings import INPUT_ENCODING, INPUT_DELIMITER, INT_NAN
 from glamod.parser.utils import log, db_model_to_field
 from glamod.parser.file_parser import FileParser
@@ -38,9 +35,12 @@ class _ContentCheck(object):
         # Run lookups to code tables first
         self._run_batch_lookups_of_code_tables()
 
+        # Now read the data in and cache chunks on the file system
+        self._read_and_cache_chunks()
+
 
     def _check_column_names(self):
-        expected = [key for key in self._rules.fields.keys()]
+        expected = [key for key in self._rules.expected_fields.keys()]
         actual = self._parser.get_column_names()
 
         if expected != actual:
@@ -81,8 +81,15 @@ class _ContentCheck(object):
             value = values[i]
             if value == INT_NAN: continue
 
-            dct.setdefault(value, [])
-            dct[value].append(indexes[i])
+            # Treat a list of values separately - need to separate them individually
+            if type(value) is list:
+                for item in value:
+                    dct.setdefault(item, [])
+                    dct[item].append(indexes[i])
+            # or simple case where value is just a value
+            else:
+                dct.setdefault(value, [])
+                dct[value].append(indexes[i])
 
         # Check each value only once and record those not found
         not_found = {}
@@ -108,25 +115,36 @@ class _ContentCheck(object):
                 else:
                     format = '{}'
 
-                _tmpl = '\tUnmatched ID:  ' + format + '; Record indexes: {}'
+                _tmpl = '[ERROR]\tUnmatched ID:  ' + format + '; Record indexes: {}'
                 print(_tmpl.format(key, not_found[key]))
 
         return not_found
 
 
+    def _read_and_cache_chunks(self):
+        conv_funcs = {}
+
+        for key in self._rules.fields.keys():
+            conv_funcs[key] = self._rules.fields[key][0]
+
+        # Read in and cache the data as pickled chunks
+        self._parser.read_and_pickle_chunks(convertors=conv_funcs)
+        self.chunks = self._parser.chunks
+
 
 class SourceConfigurationContentCheck(_ContentCheck):
 
-    _rules = SourceConfigurationParserRules
+    _rules = SourceConfigurationParserRules()
 
     def run(self): 
         super(SourceConfigurationContentCheck, self).run()
         log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
 
+
 class StationConfigurationContentCheck(_ContentCheck):
 
-    _rules = StationConfigurationParserRules    
+    _rules = StationConfigurationParserRules()
 
     def run(self):
         super(StationConfigurationContentCheck, self).run()
-
+        log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))

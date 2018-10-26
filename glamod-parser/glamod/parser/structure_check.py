@@ -3,9 +3,9 @@ import os
 import re
 
 
-from glamod.parser.utils import count_lines, report_errors, log
-from glamod.parser.exceptions import ParserError
-from glamod.parser.settings import REGEX_SAFE
+from .utils import count_lines, report_errors, log
+from .exceptions import ParserError
+from .settings import REGEX_SAFE
 
 
 class _StructureCheck(object):
@@ -105,7 +105,7 @@ class CompleteStructureCheck(_StructureCheck):
         'source_configuration/source_configuration_({}+)\.psv'.format(REGEX_SAFE),
         'station_configuration/station_configuration_({}+)\.psv'.format(REGEX_SAFE),
         'header_table/header_table_.*\.psv', 
-        'observations_table/observations_table_.*\.psv' ]
+        'observations_table/observations_table_.*\.psv']
 
 
     def _specific_checks(self):

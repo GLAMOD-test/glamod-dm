@@ -8,6 +8,10 @@ django.setup()
 
 print("Importing models...")
 from cdmapp.models import *
+from cdmapp.models import _ALL_MODELS
+
+for _model in _ALL_MODELS.keys():
+    print(_model)
 
 x = HeaderTable.objects.first()
 print(x)
