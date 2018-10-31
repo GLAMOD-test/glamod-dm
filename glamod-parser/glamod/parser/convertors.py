@@ -1,5 +1,5 @@
 
-from dateutil.parser import parser as timestamp
+from dateutil.parser import parse as timestamp
 from functools import wraps
 
 from glamod.parser.complex_types import *

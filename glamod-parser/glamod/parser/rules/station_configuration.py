@@ -41,7 +41,7 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('telecommunication_method', (list_of_ints,)),
         ('station_automation', (int,)),
         ('measuring_system_model', (list_of_strs,)),
-        ('measuring_system_id', (str,)),
+        ('measuring_system_id', (list_of_strs,)),
         ('observed_variables', (list_of_ints,)),
         ('comment', (str,)),
         ('optional_data', (int_or_empty,))
@@ -64,6 +64,8 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('source_id', (str,))
     ])
 
+    extended_fields_to_duplicate = ('primary_id',)
+
     index_field = 'primary_id'
 
     code_table_fields = OD([
@@ -79,11 +81,29 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('role', Role),
         ('observing_frequency', ObservingFrequency),
         ('telecommunication_method', CommunicationMethod),
+        ('station_automation', AutomationStatus),
         ('observed_variables', ObservedVariable),
         ('optional_data', DataPresent),
         ('region', Region)
     ])
 
-    foreign_fields_to_add = OD([
+    # Structure of foreign key mappings:
+    #   {<field_name>: (<app_model>, <field_to_write_to>, <is_primary_key>[BOOL])}
+    foreign_key_fields_to_add = OD([
+        ('primary_id_scheme', (IdScheme, 'scheme', True)),
+        ('secondary_id_scheme', (IdScheme, 'scheme', True)),
+        ('station_crs', (Crs, 'crs', True)),
+        ('station_type', (StationType, 'type', True)),
+        ('platform_type', (PlatformType, 'type', True)),
+        ('platform_sub_type', (PlatformSubType, 'sub_type', True)),
+        ('operating_institute', (Organisation, 'organisation_id', True)),
+        ('operating_territory', (SubRegion, 'sub_region', True)),
+        ('contact', (Contact, 'contact_id', True)),
+        ('role', (Role, 'role', True)),
+        ('observing_frequency', (ObservingFrequency, 'frequency', True)),
+        ('telecommunication_method', (CommunicationMethod, 'method', True)),
+        ('station_automation', (AutomationStatus, 'automation', True)),
+        ('observed_variables', (ObservedVariable, 'variable', True)),
+        ('optional_data', (DataPresent, 'flag', True))
     ])
 
