@@ -159,22 +159,13 @@ class StationConfigurationDBWriter(_DBWriterBase):
         StationConfigurationLookupFields.objects.using('deliveries_db').get_or_create(**deliveries_record)
 
         try:
+            log('INFO', 'Writing main record: {}'.format(str(main_record)))
             _, created = self.app_model.objects.get_or_create(**main_record)
         except Exception as err:
             log('ERROR', 'MAIN RECORD FAILED TO WRITE: {}'.format(str(main_record)))
             raise Exception(main_record)
 
         return created
-
-
-    def _OLDwrite_chunk(self, df):
-        for count, record in enumerate(df.to_dict('records')):
-            print(f'Writing record: {count + 1:5d}')
-
-            main_record, deliveries_record = self._extract_station_config_and_deliveries_dicts(record)
-            self._write_record(main_record)
-
-            StationConfigurationLookupFields.objects.using('deliveries_db').get_or_create(**deliveries_record)
 
 
     def _extract_station_config_and_deliveries_dicts(self, record):

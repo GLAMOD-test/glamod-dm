@@ -1,5 +1,5 @@
 """
-Rules for station_configuration files.
+Rules for observations_table files.
 """
 
 from glamod.parser.convertors import *
@@ -9,7 +9,7 @@ from glamod.parser.settings import *
 from ._base import OD, _ParserRulesBase
 
 
-class StationConfigurationParserRules(_ParserRulesBase):
+class ObservationsTableParserRules(_ParserRulesBase):
 
     fields = OD([
 
@@ -84,10 +84,7 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('station_automation', AutomationStatus),
         ('observed_variables', ObservedVariable),
         ('optional_data', DataPresent),
-        ('region', Region),
-        ('location_method', LocationMethod),
-        ('location_quality', LocationQuality),
-        ('sea_level_datum', SeaLevelDatum),
+        ('region', Region)
     ])
 
     # Structure of foreign key mappings:
@@ -107,9 +104,6 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('telecommunication_method', (CommunicationMethod, 'method', True)),
         ('station_automation', (AutomationStatus, 'automation', True)),
         ('observed_variables', (ObservedVariable, 'variable', True)),
-        ('optional_data', (DataPresent, 'flag', True)),
-        ('location_method', (LocationMethod, 'method', True)),
-        ('location_quality', (LocationQuality, 'quality', True)),
-        ('sea_level_datum', (SeaLevelDatum, 'datum', True))
+        ('optional_data', (DataPresent, 'flag', True))
     ])
 
