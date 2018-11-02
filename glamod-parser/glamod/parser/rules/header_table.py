@@ -6,7 +6,7 @@ from glamod.parser.convertors import *
 from glamod.parser.settings import *
 
 
-from glamod.parser.rules._base import OD, _ParserRulesBase
+from ._base import OD, _ParserRulesBase
 
 
 class HeaderTableParserRules(_ParserRulesBase):
@@ -36,49 +36,49 @@ class HeaderTableParserRules(_ParserRulesBase):
     }
 
     fields = OD([
-        ('report_id', (str,)),
-#        ('region', (str,)),
-#        ('sub_region', (str,)),
-        ('application_area', (str,)),
-        ('observing_programme', (str,)),
-        ('report_type', (str,)),
-#        ('station_name', (str,)),
-#        ('station_type', (str,)),
-#        ('platform_type', (str,)),
-#        ('platform_sub_type', (str,)),
-        ('primary_station', (str,)),
-        ('station_record_number', (str,)),
-#        ('primary_station_id_scheme', (str,)),
-#        ('longitude', (str,)),
-#        ('latitude', (str,)),
-#        ('location_accuracy', (str,)),
-#        ('location_method', (str,)),
-#        ('location_quality', (str,)),
-#        ('crs', (str,)),
-        ('station_speed', (str,)),
-        ('station_course', (str,)),
-        ('station_heading', (str,)),
-#        ('height_of_station_above_local_ground', (str,)),
-#        ('height_of_station_above_sea_level', (str,)),
-#        ('height_of_station_above_sea_level_accuracy', (str,)),
-#        ('sea_level_datum', (str,)),
-        ('report_meaning_of_time_stamp', (str,)),
-        ('report_timestamp', (str,)),
-        ('report_duration', (str,)),
-        ('report_time_accuracy', (str,)),
-        ('report_time_quality', (str,)),
-        ('report_time_reference', (str,)),
-        ('profile', (str,)),
-        ('events_at_station', (str,)),
-        ('report_quality', (str,)),
-        ('duplicate_status', (str,)),
-        ('duplicates', (str,)),
-        ('record_timestamp', (str,)),
-        ('history', (str,)),
-        ('processing_level', (str,)),
-        ('processing_codes', (str,)),
-        ('source', (str,)),
-        ('source_record_id', (str,))
+        ('report_id', str),
+#        ('region', str),
+#        ('sub_region', str),
+        ('application_area', list_of_ints),
+        ('observing_programme', list_of_ints),
+        ('report_type', int_or_empty),
+#        ('station_name', str),
+#        ('station_type', str),
+#        ('platform_type', str),
+#        ('platform_sub_type', str),
+        ('primary_station', str),
+        ('station_record_number', int),
+#        ('primary_station_id_scheme', str),
+#        ('longitude', str),
+#        ('latitude', str),
+#        ('location_accuracy', str),
+#        ('location_method', str),
+#        ('location_quality', str),
+#        ('crs', str),
+        ('station_speed', float_or_empty),
+        ('station_course', float_or_empty),
+        ('station_heading', float_or_empty),
+#        ('height_of_station_above_local_ground', str),
+#        ('height_of_station_above_sea_level', str),
+#        ('height_of_station_above_sea_level_accuracy', str),
+#        ('sea_level_datum', str),
+        ('report_meaning_of_time_stamp', int),
+        ('report_timestamp', timestamp_or_empty),
+        ('report_duration', int),
+        ('report_time_accuracy', float_or_empty),
+        ('report_time_quality', int),
+        ('report_time_reference', int),
+        ('profile', str),
+        ('events_at_station', list_of_ints),
+        ('report_quality', int),
+        ('duplicate_status', int_or_empty),
+        ('duplicates', list_of_strs),
+        ('record_timestamp', timestamp_or_empty),
+        ('history', str),
+        ('processing_level', int_or_empty),
+        ('processing_codes', list_of_ints),
+        ('source', str),
+        ('source_record_id', str)
     ])
 
     # Extended fields (not defined in table schema)
@@ -86,45 +86,28 @@ class HeaderTableParserRules(_ParserRulesBase):
     extended_fields = OD([
     ])
 
-    index_field = 'primary_id'
+    index_field = 'report_id'
 
     code_table_fields = OD([
-        ('primary_id_scheme', IdScheme),
-        ('secondary_id_scheme', IdScheme),
-        ('station_crs', Crs),
-        ('station_type', StationType),
-        ('platform_type', PlatformType),
-        ('platform_sub_type', PlatformSubType),
-        ('operating_institute', Organisation),
-        ('operating_territory', SubRegion),
-        ('contact', Contact),
-        ('role', Role),
-        ('observing_frequency', ObservingFrequency),
-        ('telecommunication_method', CommunicationMethod),
-        ('station_automation', AutomationStatus),
-        ('observed_variables', ObservedVariable),
-        ('optional_data', DataPresent),
-        ('region', Region)
+        ('report_type', (ReportIdType, 'type', True)),
+        ('station_record_number', (StationConfiguration, 'record_number', True)),
+        ('report_meaning_of_time_stamp', (MeaningOfTimeStamp, 'meaning', True)),
+        ('report_time_quality', (TimeQuality, 'quality', True)),
+        ('report_time_reference', (TimeReference, 'reference', True)),
+        ('profile', (ProfileConfiguration, 'profile_id', True)),
+        ('events_at_station', (EventsAtStation, 'event', True)),
+        ('report_quality', (QualityFlag, 'flag', True)),
+        ('duplicate_status', (DuplicateStatus, 'status', True)),
+        ('processing_level', (ReportProcessingLevel, 'level', True)),
+        ('processing_codes', (ReportProcessingCodes, 'code', True)),
+        ('source', (SourceConfiguration, 'source_id', True)),
     ])
+
+
 
     # Structure of foreign key mappings:
     #   {<field_name>: (<app_model>, <field_to_write_to>, <is_primary_key>[BOOL])}
-    foreign_key_fields_to_add = OD([
-        ('primary_id_scheme', (IdScheme, 'scheme', True)),
-        ('secondary_id_scheme', (IdScheme, 'scheme', True)),
-        ('station_crs', (Crs, 'crs', True)),
-        ('station_type', (StationType, 'type', True)),
-        ('platform_type', (PlatformType, 'type', True)),
-        ('platform_sub_type', (PlatformSubType, 'sub_type', True)),
-        ('operating_institute', (Organisation, 'organisation_id', True)),
-        ('operating_territory', (SubRegion, 'sub_region', True)),
-        ('contact', (Contact, 'contact_id', True)),
-        ('role', (Role, 'role', True)),
-        ('observing_frequency', (ObservingFrequency, 'frequency', True)),
-        ('telecommunication_method', (CommunicationMethod, 'method', True)),
-        ('station_automation', (AutomationStatus, 'automation', True)),
-        ('observed_variables', (ObservedVariable, 'variable', True)),
-        ('optional_data', (DataPresent, 'flag', True))
-    ])
-
-
+    # foreign_key_fields_to_add = OD([])
+    # NOTE: This "foreign_key_fields_to_add" property is created in the base class
+    #       as a reference to "code_table_fields". However, we might need them to be
+    #       separate so the code treats them as separate.

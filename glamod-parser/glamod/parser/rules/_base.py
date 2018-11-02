@@ -29,6 +29,12 @@ class _ParserRulesBase(object):
         if not hasattr(self, 'extended_fields'):
             self.extended_fields = OD()
 
+        self.foreign_key_fields_to_add = self.code_table_fields
+
+        assert(sorted(self.code_table_fields.keys()) == \
+                      sorted(self.foreign_key_fields_to_add.keys()))
+
+
     def _set_expected_fields(self):
         self.expected_fields = deepcopy(self.fields)
         self.expected_fields.update(self.extended_fields)

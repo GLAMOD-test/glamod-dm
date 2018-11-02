@@ -52,11 +52,8 @@ class _ContentCheck(object):
 
 
     def _run_batch_lookups_of_code_tables(self):
-        fields = copy.deepcopy(self._rules.fields)         
-        col_names = [key for key in fields.keys()]
-
-        for key in col_names:
-            fields[key] = fields[key][0]
+        _fields = self._rules.fields
+        col_names = [key for key in _fields.keys()]
 
         index_field = self._rules.index_field
         code_table_fields_dct = self._rules.code_table_fields
@@ -64,17 +61,18 @@ class _ContentCheck(object):
         columns = [index_field] + [_key for _key in code_table_fields_dct.keys()]
 
         # Cache a DataFrame with all required columns
-        df = self._parser.get_subset_dataframe(convertors=fields, columns=columns)
+        df = self._parser.get_subset_dataframe(convertors=_fields, columns=columns)
 
-        for lookup_col, _model in code_table_fields_dct.items():
+        for lookup_col, _model_details in code_table_fields_dct.items():
 
+            _model = _model_details[0]
             log('INFO', 'Checking column "{}" in: {}'.format(lookup_col, self.fpath))
             self._check_lookups_exist_in_code_table(df[lookup_col], df[index_field],
                                                     _model)
         
 
     def _check_lookups_exist_in_code_table(self, values, indexes, model):
-        assert(len(values)==len(indexes))
+        assert(len(values) == len(indexes))
         dct = {}
 
         for i in range(len(values)):
@@ -123,9 +121,10 @@ class _ContentCheck(object):
 
     def _read_and_cache_chunks(self):
         conv_funcs = {}
+        _fields = self._rules.fields
 
-        for key in self._rules.fields.keys():
-            conv_funcs[key] = self._rules.fields[key][0]
+        for key in _fields.keys():
+            conv_funcs[key] = _fields[key]
 
         # Read in and cache the data as pickled chunks
         self._parser.read_and_pickle_chunks(convertors=conv_funcs)
