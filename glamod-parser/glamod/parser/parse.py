@@ -15,7 +15,7 @@ from glamod.parser.processors import (SourceAndStationConfigProcessor,
 
 @click.command()
 @click.option('-t', '--del-type', type=click.Choice(['source', 'data']),
-              help='Only parse "SOURCE" and "STATION" configuration files.')
+              help='Specify file types to process ("source" or "data").')
 @click.option('-d', '--working_dir', default='working_dir', 
               help='Working directory to unzip files to.')
 @click.argument('location', type=click.Path(exists=True)) 

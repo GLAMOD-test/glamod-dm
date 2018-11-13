@@ -99,12 +99,10 @@ class SourceAndStationConfigStructureCheck(_StructureCheck):
         pass
 
 
-class CompleteStructureCheck(_StructureCheck):
+class HeaderAndObservationsTablesStructureCheck(_StructureCheck):
 
     _EXPECTED_FILES = [
-        'source_configuration/source_configuration_({}+)\.psv'.format(REGEX_SAFE),
-        'station_configuration/station_configuration_({}+)\.psv'.format(REGEX_SAFE),
-        'header_table/header_table_.*\.psv', 
+        'header_table/header_table_.*\.psv',
         'observations_table/observations_table_.*\.psv']
 
 
@@ -134,6 +132,3 @@ class CompleteStructureCheck(_StructureCheck):
         log('INFO', 'Checked file structure (not content yet).')
 
 
-class HeaderStructureCheck(_StructureCheck): pass
-
-class ObservationsStructureCheck(_StructureCheck): pass

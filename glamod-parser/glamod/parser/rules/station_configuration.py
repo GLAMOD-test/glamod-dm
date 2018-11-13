@@ -51,17 +51,17 @@ class StationConfigurationParserRules(_ParserRulesBase):
     # Extended fields (not defined in table schema)
     #  - to be saved to the 'deliveries' DB for later lookups
     extended_fields = OD([
-        ('region', (int,)),
-        ('data_policy_licence', (int,)),
-        ('primary_station_id_scheme', (int,)),
-        ('location_accuracy', (float,)),
-        ('location_method', (str,)),
-        ('location_quality', (int,)),
-        ('height_of_station_above_local_ground', (float_or_empty,)),
-        ('height_of_station_above_sea_level', (float_or_empty,)),
-        ('height_of_station_above_sea_level_accuracy', (float_or_empty,)),
-        ('sea_level_datum', (float_or_empty,)),
-        ('source_id', (str,))
+        ('region', int),
+        ('data_policy_licence', int),
+        ('primary_station_id_scheme', int),
+        ('location_accuracy', float),
+        ('location_method', int_or_empty),
+        ('location_quality', int),
+        ('height_of_station_above_local_ground', float_or_empty),
+        ('height_of_station_above_sea_level', float_or_empty),
+        ('height_of_station_above_sea_level_accuracy', float_or_empty),
+        ('sea_level_datum', float_or_empty),
+        ('source_id', str)
     ])
 
     extended_fields_to_duplicate = ('primary_id',)
@@ -84,6 +84,7 @@ class StationConfigurationParserRules(_ParserRulesBase):
             ('station_automation', (AutomationStatus, 'automation', True)),
             ('observed_variables', (ObservedVariable, 'variable', True)),
             ('region', (Region, 'region', True)),
+            ('data_policy_licence', (DataPolicyLicence, 'policy', True)),
             ('optional_data', (DataPresent, 'flag', True)),
             ('location_method', (LocationMethod, 'method', True)),
             ('location_quality', (LocationQuality, 'quality', True)),
