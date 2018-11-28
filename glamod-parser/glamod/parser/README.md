@@ -1,10 +1,83 @@
 # Structure and usage of the GLAMOD parser
 
+## Overview
+
+The GLAMOD parser is a tool that can read input data files, check various aspects 
+of them and then load the content into the "CDM" (Common Data Model) database. 
+
+The parser works in two modes:
+
+ 1. Parse inventory-level information (using the *Source/Station Processor*):
+   - Source Configuration files (info about data sources)
+   - Station Configuration files (info about stations)
+
+ 2. Parse observation data (using the *Header/Observations Processor*):
+   - Header Table files (common info for a set of observations)
+   - Observations Table files (the actual measurement values/details)
+   
+Each of the processors follows a similar workflow:
+
+ 1. Run Structure checks:
+   - directory and file names
+   - existence of directories and files
+   
+ 2. Run Content checks:
+   - read each file
+   - check column names
+   - run lookups of values where they should exist in code tables
+   - read file and cache content in *chunk files* (as `pandas.DataFrame` instances)
+   
+ 3. Run Logic checks:
+   - read the *chunk files*
+   - values for certain columns must conform to certain rules
+   - for some columns only a fixed percentage can exceed a certain threshold
+   
+ 4. Write to DB:
+   - read the *chunk files*
+   - apply rules to get content from lookups and extended DB in order to populate all
+     required columns
+   - write content to relevant DB tables
+   
+## The rules of the parser and processors
+
+There are a number of specific rules that define the required content for each file
+type. These rules live in:
+
+```
+rules/source_configuration.py
+rules/station_configuration.py
+
+rules/header_table.py
+rules/observations_table.py
+```
+
+Each of these files contains a class that defines the rules. Each class has some or
+all of the following attributes, used to define how the parser should read and use
+the data in the input files:
+
+ - `.fields` (OrderedDict): standard fields that will exist as column headers and map 
+   directly to the CDM.
+ - `.extended_fields` (OrderedDict): these fields are not defined in the CDM table schema.
+   Instead, they are included here so that they can be looked up when loading data for other
+   tables. This is an efficiency gain because the values here will be broadcast to all 
+   records in the other tables. This data is stored in the secondary database as part of the
+   `deliveries` app.
+ - `.extended_fields_to_duplicate` (List): these fields will be *both* stored in the 
+   `deliveries` DB but will also be saved to the CDM DB table.
+ - `.index_field` (String): indicates the primary key field.
+ - `.code_table_fields` (OrderedDict): a selection of fields with their mappings to a specific 
+   Code Table and the lookup key (i.e. column) within that table.
+ - `.vlookup_fields` (OrderedDict): fields that need to be looked up in other tables in order
+   to be populated. For example, a number of fields remain constant within a Header Table so 
+   we use a lookup to the Station Configuration/extended tables in order to get these values.
+   The values are therefore not included in the input files even though the data is required
+   in the CDM DB.
+
 ## Pre-requisites
 
 You will need to set up the following for the parser to work.
 
-### 1. Set up the environment
+### Set up the environment
 
 Set up a Python3.6 conda or virtual environment and install dependencies, e.g.:
 
@@ -34,7 +107,28 @@ from cdmapp.models import *
 print(HeaderTable.objects.count()
 ```
 
-### 3. A Data Delivery Package (DDP)
+## Running the parser
+
+Here are some examples of running the parser with test data.
+
+### Parsing the Source/Station Configuration files
+
+To run the parser on a directory containing Source and Station Configuration files:
+
+```
+python parse.py -t source test_data/glamod_land_delivery_20180928_source-v6.2
+```
+
+### Parsing the Header and Observations Table files
+
+To run the parser on a directory containing Header and Observations Table files:
+
+```
+python parse.py -t data test_data/glamod_land_delivery_20180928_data-v6.2
+```
+
+
+### OLD - needs a rewrite - A Data Delivery Package (DDP)
 
 This section outlines the required structure for each data delivery package (DDP).
 
@@ -82,8 +176,7 @@ order to identify the connection between the DDPs.
 
 ### High-level overview
 
-Need to reference the `source_configuration` and `station_configuration` records via the 
-primary keys (so those records will need to have been pre-loaded).
+Need to reference the `source_configuration` and `station_configuration` records via the primary keys (so those records will need to have been pre-loaded).
 
 - walk the structure and check everything is named correctly
   - if zipped then interrogate the zip structure without unzipping
@@ -124,35 +217,3 @@ The generic approach to parsing a `.psv` file is as simple as:
    - e.g. header table and observation table - should have same number of rows 
   - save/cache the result (without yet writing to DB)
 
-## Representing the rules in code
-
-For each field (in each table) we need to know:
-
- 1. is mandatory?
- 2. is default defined?
- 3. is null allowed?
- 4. is lookup check required - in real DB table?
- 5. what is correct type?
- 6. does provided type match correct type?
- 7. is there a specific rule for this type?
-
-Logical solution:
-
- - each field is a class instance or a NamedTuple instance, with properties:
-  - data_type:     use primitive and bespoke types as required
-  - default:       as defined by `data_type`
-  - is_required:   boolean  
-  - lookup_ref:    string as: '<table_name>.<prop_name>' 
-  - copy_to:        list: ['<table_name>.<prop_name>', '<table_name>.<prop_name>', ...] 
-
-????
-  - complex_lookups???:  HOW TO CHECK ON CROSS-LOOKUPS WITH OTHER FIELDS?
-    1. In single fields?
-    2. Or, define them as separate secondary rules defined separately, so you have:
-      i.  _FIELD_RULES
-      ii. _COMBINATION_RULES
-????
-
-Notes:
-
- 1. `data_type` might be defined as a new class with validation rules included.
