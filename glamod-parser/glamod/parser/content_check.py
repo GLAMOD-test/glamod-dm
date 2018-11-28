@@ -13,7 +13,8 @@ from glamod.parser.settings import INPUT_ENCODING, INPUT_DELIMITER, INT_NAN
 from glamod.parser.utils import log, db_model_to_field
 from glamod.parser.file_parser import FileParser
 from glamod.parser.rules import (
-     SourceConfigurationParserRules, StationConfigurationParserRules)
+     SourceConfigurationParserRules, StationConfigurationParserRules,
+     HeaderTableParserRules, ObservationsTableParserRules)
 
 
 class _ContentCheck(object):
@@ -52,8 +53,7 @@ class _ContentCheck(object):
 
 
     def _run_batch_lookups_of_code_tables(self):
-        _fields = self._rules.fields
-        col_names = [key for key in _fields.keys()]
+        _fields = self._rules.expected_fields
 
         index_field = self._rules.index_field
         code_table_fields_dct = self._rules.code_table_fields
@@ -104,7 +104,7 @@ class _ContentCheck(object):
                 not_found[value] = dct[value]
 
         if not_found:
-            log('ERROR', 'The following record IDs were not found in table "{}":'.format(
+            log('WARN', 'The following record IDs were not found in table "{}":'.format(
                   db_model_to_field(model.__name__)))
 
             for key in sorted(not_found.keys()):
@@ -113,21 +113,17 @@ class _ContentCheck(object):
                 else:
                     format = '{}'
 
-                _tmpl = '[ERROR]\tUnmatched ID:  ' + format + '; Record indexes: {}'
-                print(_tmpl.format(key, not_found[key]))
+                _tmpl = 'Unmatched ID:  ' + format + '; Record indexes: {}'
+                log('WARN', _tmpl.format(key, not_found[key]))
 
         return not_found
 
 
     def _read_and_cache_chunks(self):
-        conv_funcs = {}
-        _fields = self._rules.fields
-
-        for key in _fields.keys():
-            conv_funcs[key] = _fields[key]
+        _fields = self._rules.expected_fields
 
         # Read in and cache the data as pickled chunks
-        self._parser.read_and_pickle_chunks(convertors=conv_funcs)
+        self._parser.read_and_pickle_chunks(convertors=_fields)
         self.chunks = self._parser.chunks
 
 
@@ -146,4 +142,22 @@ class StationConfigurationContentCheck(_ContentCheck):
 
     def run(self):
         super(StationConfigurationContentCheck, self).run()
+        log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
+
+
+class HeaderTableContentCheck(_ContentCheck):
+
+    _rules = HeaderTableParserRules()
+
+    def run(self):
+        super(HeaderTableContentCheck, self).run()
+        log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
+
+
+class ObservationsTableContentCheck(_ContentCheck):
+
+    _rules = ObservationsTableParserRules()
+
+    def run(self):
+        super(ObservationsTableContentCheck, self).run()
         log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))

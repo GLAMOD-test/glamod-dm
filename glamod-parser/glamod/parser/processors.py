@@ -6,9 +6,10 @@ import stringcase
 from .utils import log, timeit, map_file_type
 
 from .structure_check import (SourceAndStationConfigStructureCheck,
-    HeaderStructureCheck, ObservationsStructureCheck)
+    HeaderAndObservationsTablesStructureCheck)
 from .logic_check import (SourceConfigurationLogicCheck,
-                          StationConfigurationLogicCheck, HeaderTableLogicCheck, ObservationsTableLogicCheck)
+    StationConfigurationLogicCheck, HeaderTableLogicCheck,
+    ObservationsTableLogicCheck)
 
 
 class _DeliveryProcessorBase(object):
@@ -126,12 +127,12 @@ class SourceAndStationConfigProcessor(_DeliveryProcessorBase):
 
 class HeaderAndObsTableProcessor(_DeliveryProcessorBase):
 
-    STRUCTURE_CHECKS = [HeaderStructureCheck, ObservationsStructureCheck]
+    FILE_TYPES = ['HeaderTable', 'ObservationsTable']
+    STRUCTURE_CHECKS = [HeaderAndObservationsTablesStructureCheck]
     LOGIC_CHECKS = [HeaderTableLogicCheck, ObservationsTableLogicCheck]
 
     def _run_content_checks(self):
-        super(self)._run_content_checks(self)
-        log('ERROR', 'Only runs 1 content check - need to run all!!!')
+        super(HeaderAndObsTableProcessor, self)._run_content_checks()
 
     @timeit
     def _write_to_db(self):

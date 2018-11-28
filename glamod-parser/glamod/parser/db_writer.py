@@ -71,9 +71,13 @@ class _DBWriterBase(object):
         rec = copy.deepcopy(record)
 
         for key in sorted(record.keys()): print('IN REC: {}: {}'.format(key, record[key]))
-        for key in sorted(self.rules.foreign_key_fields_to_add.keys()): print('NEEDED AS FK: {}: {}'.format(key, record[key]))
+        for key in sorted(self.rules.foreign_key_fields_to_add.keys()):
+            print('NEEDED AS FK: {}: {}'.format(key, record[key]))
 
         for fk_field, (fk_model, fk_arg, is_primary_key) in self.rules.foreign_key_fields_to_add.items():
+
+#            if fk_field == 'region':
+#                import pdb; pdb.set_trace()
 
             value = rec[fk_field]
 
@@ -96,7 +100,12 @@ class _DBWriterBase(object):
             else:
                 kwargs = self._get_fk_kwargs(fk_model, value, fk_arg, is_primary_key)
                 fk_obj = self._get_or_create(fk_model, kwargs)
-                rec[fk_field] = fk_obj
+
+                # Now work out whether to set the FK object as the value or to just keep
+                # the simple field. Have to do this if using the secondary database for extra
+                # fields
+                if fk_field not in self.rules.extended_fields.keys():
+                    rec[fk_field] = fk_obj
 
         return rec
 
@@ -112,10 +121,13 @@ class _DBWriterBase(object):
 
 
     def _get_or_create(self, db_model, kwargs):
+
+        model_class = db_model.__name__
+        log('DEBUG', 'Writing {} with args: {}'.format(model_class, kwargs))
         obj, created = db_model.objects.get_or_create(**kwargs)
 
         if created:
-            log('INFO', 'Created record: {}'.format(obj))
+            log('INFO', 'Created record: {} (type: {})'.format(obj, model_class))
 
         return obj
 
@@ -125,8 +137,8 @@ class SourceConfigurationDBWriter(_DBWriterBase):
     app_model = SourceConfiguration
     rules = SourceConfigurationParserRules()
 
-    def write_to_db(self):
-        log('WARN', 'DISABLED FOR: {}!!!!!'.format(self.ftype))
+#    def write_to_db(self):
+#        log('WARN', 'DISABLED FOR: {}!!!!!'.format(self.ftype))
 
 
 class StationConfigurationDBWriter(_DBWriterBase):

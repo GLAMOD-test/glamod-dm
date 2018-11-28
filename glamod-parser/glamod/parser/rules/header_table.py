@@ -81,6 +81,12 @@ class HeaderTableParserRules(_ParserRulesBase):
         ('source_record_id', str)
     ])
 
+    # Empty fields: excluded fields that should be added in by the parser
+    # as empty values.
+    empty_fields = OD([
+
+    ])
+
     # Extended fields (not defined in table schema)
     #  - to be saved to the 'deliveries' DB for later lookups
     extended_fields = OD([
