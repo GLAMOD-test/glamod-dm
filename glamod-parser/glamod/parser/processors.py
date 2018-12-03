@@ -1,5 +1,6 @@
 import os
 from collections import OrderedDict as OD
+from importlib import import_module
 
 import stringcase
 
@@ -91,7 +92,7 @@ class _DeliveryProcessorBase(object):
         if not mod_name:
             mod_name = stringcase.snakecase(check_type)
 
-        mod = __import__(mod_name)
+        mod = import_module('.' + mod_name, package='glamod.parser')
         return getattr(mod, class_name)
 
     def _get_content_check(self, fpath):
