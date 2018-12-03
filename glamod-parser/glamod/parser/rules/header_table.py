@@ -97,7 +97,7 @@ class HeaderTableParserRules(_ParserRulesBase):
     code_table_fields = OD([
         ('report_type', (ReportIdType, 'type', True)),
         ('station_record_number', (StationConfiguration, 'record_number', True)),
-        ('report_meaning_of_time_stamp', (MeaningOfTimeStamp, 'meaning', True)),
+        ('report_meaning_of_timestamp', (MeaningOfTimestamp, 'meaning', True)),
         ('report_time_quality', (TimeQuality, 'quality', True)),
         ('report_time_reference', (TimeReference, 'reference', True)),
         ('profile', (ProfileConfiguration, 'profile_id', True)),
