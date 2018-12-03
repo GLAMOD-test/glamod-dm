@@ -10,17 +10,6 @@ import pytest
 
 from glamod.parser.utils import *
 from glamod.parser.content_check import *
- 
-
-def test_get_content_check_success():
-    args = [
-        ('source_configuration_test001.psv', SourceConfigurationContentCheck),
-        ('station_configuration/station_configuration_test001.psv', StationConfigurationContentCheck)
-    ]
-
-    for fpath, cls in args:
-        resp = get_content_check(fpath) 
-        assert(resp.__class__.__name__ == cls.__name__)
 
 
 def test_field_to_db_model():

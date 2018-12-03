@@ -8,7 +8,7 @@ Tests for sub-classes of `complex_types._ComplexType`.
 
 import pytest
 
-from complex_types import *
+from glamod.parser.complex_types import *
 
 
 
