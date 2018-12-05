@@ -64,7 +64,7 @@ class HeaderTableParserRules(_ParserRulesBase):
 #        ('sea_level_datum', str),
         ('report_meaning_of_time_stamp', int),
         ('report_timestamp', timestamp_or_empty),
-        ('report_duration', int),
+        ('report_duration', int_or_empty),
         ('report_time_accuracy', float_or_empty),
         ('report_time_quality', int),
         ('report_time_reference', int),
