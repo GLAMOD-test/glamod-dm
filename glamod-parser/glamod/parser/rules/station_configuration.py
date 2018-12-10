@@ -44,7 +44,13 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('measuring_system_id', list_of_strs),
         ('observed_variables', list_of_ints),
         ('comment', str),
-        ('optional_data', int_or_empty)
+        ('optional_data', int_or_empty),
+        ('bbox_min_longitude', float_or_empty),
+        ('bbox_max_longitude', float_or_empty),
+        ('bbox_min_latitude', float_or_empty),
+        ('bbox_max_latitude', float_or_empty),
+        ('metadata_contact', list_of_strs),
+        ('metadata_contact_role', list_of_ints),
     ])
 
 

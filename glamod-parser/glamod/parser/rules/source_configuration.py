@@ -11,7 +11,7 @@ from ._base import OD, _ParserRulesBase
 class SourceConfigurationParserRules(_ParserRulesBase):
     
     fields = OD([
-        ('source_id', int),
+        ('source_id', str),
         ('product_id', None),
         ('product_name', str),
         ('product_code', str),
@@ -35,7 +35,13 @@ class SourceConfigurationParserRules(_ParserRulesBase):
         ('comments', str),
         ('timestamp', timestamp_or_empty),
         ('maintenance_and_update_frequency', int_or_empty),
-        ('optional_data', int_or_empty)
+        ('optional_data', int_or_empty),
+        ('bbox_min_longitude', float_or_empty),
+        ('bbox_max_longitude', float_or_empty),
+        ('bbox_min_latitude', float_or_empty),
+        ('bbox_max_latitude', float_or_empty),
+        ('metadata_contact', list_of_strs),
+        ('metadata_contact_role', list_of_ints),
     ])
 
     index_field = 'source_id'
