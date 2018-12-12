@@ -9,7 +9,8 @@ from glamod.parser.utils import log, timeit
 from glamod.parser.chunk_manager import ChunkManager
 
 from glamod.parser.rules import (SourceConfigurationParserRules,
-    StationConfigurationParserRules)
+    StationConfigurationParserRules, HeaderTableParserRules,
+    ObservationsTableParserRules)
 
 
 class _DBWriterBase(object):
@@ -80,6 +81,11 @@ class _DBWriterBase(object):
 #                import pdb; pdb.set_trace()
 
             value = rec[fk_field]
+
+            if isinstance(value, str) and not value and is_primary_key:
+                log('DEBUG', f'Ignoring empty string foreign key: {fk_field}')
+                del rec[fk_field]
+                continue
 
             if value == INT_NAN and is_primary_key:
                 log('DEBUG', f'Ignoring NAN field for: {fk_field}')
@@ -206,8 +212,12 @@ class StationConfigurationDBWriter(_DBWriterBase):
 
 
 class HeaderTableDBWriter(_DBWriterBase):
-    pass
+
+    app_model = HeaderTable
+    rules = HeaderTableParserRules()
 
 
 class ObservationsTableDBWriter(_DBWriterBase):
-    pass
+
+    app_model = ObservationsTable
+    rules = ObservationsTableParserRules()

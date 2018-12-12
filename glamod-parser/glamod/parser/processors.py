@@ -139,3 +139,12 @@ class HeaderAndObsTableProcessor(_DeliveryProcessorBase):
     def _write_to_db(self):
         log('INFO', 'Loading data for Header Table files.')
         log('INFO', 'Loading data for Observation Table files.')
+        
+        for ftype in self.FILE_TYPES:
+            log('INFO', f'Writing data to DB for files of type: {ftype}')
+
+            chunks = self.chunk_dict[ftype]
+            db_writer_class = self._get_db_writer(chunks[0])
+
+            db_writer = db_writer_class(chunks)
+            db_writer.write_to_db()

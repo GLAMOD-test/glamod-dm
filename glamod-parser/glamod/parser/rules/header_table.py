@@ -78,7 +78,7 @@ class HeaderTableParserRules(_ParserRulesBase):
         ('processing_level', int_or_empty),
         ('processing_codes', list_of_ints),
         ('source_id', str),
-        ('source_record_id', str)
+#        ('source_record_id', str)
     ])
 
     # Empty fields: excluded fields that should be added in by the parser
@@ -96,8 +96,10 @@ class HeaderTableParserRules(_ParserRulesBase):
 
     code_table_fields = OD([
         ('report_type', (ReportIdType, 'type', True)),
-        ('station_record_number', (StationConfiguration, 'record_number', True)),
+        ('primary_station_id', (StationConfiguration, 'primary_id', True)),
+        #('station_record_number', (StationConfiguration, 'record_number', True)),
         ('report_meaning_of_timestamp', (MeaningOfTimestamp, 'meaning', True)),
+        ('report_duration', (Duration, 'duration', True)),
         ('report_time_quality', (TimeQuality, 'quality', True)),
         ('report_time_reference', (TimeReference, 'reference', True)),
         ('profile_id', (ProfileConfiguration, 'profile_id', True)),
