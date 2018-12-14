@@ -7,6 +7,12 @@ from glamod.parser.settings import *
 
 
 from ._base import OD, _ParserRulesBase
+from cdmapp.models import MeaningOfTimestamp, Duration, ObservedVariable,\
+    ObservationValueSignificance, SecondaryVariable, ZCoordinateType, Units,\
+    ObservationCodeTable, ConversionFlag, LocationMethod, ZCoordinateMethod,\
+    SpatialRepresentativeness, QualityFlag, SensorConfiguration,\
+    AutomationStatus, InstrumentExposureQuality, ConversionMethod,\
+    ProcessingCode, ProcessingLevel, Adjustment, Traceability, DataPresent
 
 
 class ObservationsTableParserRules(_ParserRulesBase):
@@ -14,60 +20,89 @@ class ObservationsTableParserRules(_ParserRulesBase):
     fields = OD([
 
       # Standard fields
-        ('primary_id', str),
-        ('primary_id_scheme', int),
-        ('record_number', int),
-        ('secondary_id', list_of_strs),
-        ('secondary_id_scheme', list_of_ints),
-        ('station_name', str),
-        ('station_abbreviation', str),
-        ('alternative_name', list_of_strs),
-        ('station_crs', str),
-        ('longitude', float),
-        ('latitude', float),
-        ('local_gravity', float_or_empty),
-        ('start_date', timestamp),
-        ('end_date', timestamp),
-        ('station_type', int),
-        ('platform_type', int_or_empty),
-        ('platform_sub_type', int_or_empty),
-        ('operating_institute', str),
-        ('operating_territory', int),
-        ('city', str),
-        ('contact', list_of_strs),
-        ('role', list_of_ints),
-        ('observing_frequency', int),
-        ('reporting_time', list_of_ints),
-        ('telecommunication_method', list_of_ints),
-        ('station_automation', int),
-        ('measuring_system_model', list_of_strs),
-        ('measuring_system_id', list_of_strs),
-        ('observed_variables', list_of_ints),
-        ('comment', str),
-        ('optional_data', int_or_empty)
+        ('observation_id', str),
+        ('report_id', str),
+        ('data_policy_licence', int_or_empty),
+        ('date_time', timestamp_or_empty),
+        ('date_time_meaning', int_or_empty),
+        ('observation_duration', int_or_empty),
+        ('longitude', float_or_empty),
+        ('latitude', float_or_empty),
+#        ('crs', int_or_empty),
+#        ('z_coordinate', float_or_empty),
+#        ('z_coordinate_type', int_or_empty),
+        ('observation_height_above_station_surface', float_or_empty),
+        ('observed_variable', int_or_empty),
+#        ('secondary_variable', int_or_empty),
+        ('observation_value', float_or_empty),
+        ('value_significance', int_or_empty),
+        ('secondary_value', int_or_empty),
+        ('units', int_or_empty),
+#        ('code_table', int_or_empty),
+        ('conversion_flag', int_or_empty),
+#        ('location_method', int_or_empty),
+#        ('location_precision', float_or_empty),
+#        ('z_coordinate_method', int_or_empty),
+#        ('bbox_min_longitude', float_or_empty),
+#        ('bbox_max_longitude', float_or_empty),
+#        ('bbox_min_latitude', float_or_empty),
+#        ('bbox_max_latitude', float_or_empty),
+#        ('spatial_representativeness', int_or_empty),
+        ('quality_flag', int_or_empty),
+        ('numerical_precision', int),
+#        ('sensor', int_or_empty),
+#        ('sensor_automation_status', int_or_empty),
+#        ('exposure_of_sensor', int_or_empty),
+        ('original_precision', float_or_empty),
+        ('original_units', int_or_empty),
+#        ('original_code_table', int_or_empty),
+        ('original_value', float_or_empty),
+        ('conversion_method', int_or_empty),
+#        ('processing_code', str),
+#        ('processing_level', int_or_empty),
+#        ('adjustment', int_or_empty),
+#        ('traceability', int_or_empty),
+#        ('advanced_qc', int_or_empty),
+#        ('advanced_uncertainty', int_or_empty),
+#        ('advanced_homogenisation', int_or_empty),
+        ('source_id', str),
     ])
 
-
-    # Extended fields (not defined in table schema)
-    #  - to be saved to the 'deliveries' DB for later lookups
-    extended_fields = OD([
-        ('region', (int,)),
-        ('data_policy_licence', (int,)),
-        ('primary_station_id_scheme', (int,)),
-        ('location_accuracy', (float,)),
-        ('location_method', (str,)),
-        ('location_quality', (int,)),
-        ('height_of_station_above_local_ground', (float_or_empty,)),
-        ('height_of_station_above_sea_level', (float_or_empty,)),
-        ('height_of_station_above_sea_level_accuracy', (float_or_empty,)),
-        ('sea_level_datum', (float_or_empty,)),
-        ('source_id', (str,))
-    ])
 
     index_field = 'observation_id'
 
     code_table_fields = OD([
-
+        ('report_id', (HeaderTable, 'report_id', True)),
+        ('data_policy_licence', (DataPolicyLicence, 'policy', True)),
+        ('date_time_meaning', (MeaningOfTimestamp, 'meaning', True)),
+        ('observation_duration', (Duration, 'duration', True)),
+#        ('crs', (CRS, 'crs', True)),
+#        ('z_coordinate_type', (ZCoordinateType, 'type', True)),
+        ('observed_variable', (ObservedVariable, 'variable', True)),
+#        ('secondary_variable', (SecondaryVariable, 'variable', True)),
+        ('value_significance', (ObservationValueSignificance, 'significance', True)),
+#        ('secondary_value', (SecondaryVariable, 'value', True)),
+        ('units', (Units, 'units', True)),
+#        ('code_table', (ObservationCodeTable, 'code_table', True)),
+        ('conversion_flag', (ConversionFlag, 'flag', True)),
+#        ('location_method', (LocationMethod, 'method', True)),
+#        ('z_coordinate_method', (ZCoordinateMethod, 'method', True)),
+#        ('spatial_representativeness', (SpatialRepresentativeness, 'representativeness', True)),
+        ('quality_flag', (QualityFlag, 'flag', True)),
+#        ('sensor_id', (SensorConfiguration, 'sensor_id', True)),
+#        ('sensor_automation_status', (AutomationStatus, 'automation', True)),
+#        ('exposure_of_sensor', (InstrumentExposureQuality, 'exposure', True)),
+        ('original_units', (Units, 'units', True)),
+#        ('original_code_table', (ObservationCodeTable, 'code_table', True)),
+        ('conversion_method', (ConversionMethod, 'method', True)),
+#        ('processing_code', (ProcessingCode, 'code', True)),
+#        ('processing_level', (ProcessingLevel, 'level', True)),
+#        ('adjustment_id', (Adjustment, 'adjustment_id', True)),
+#        ('traceability', (Traceability, 'traceability', True)),
+#        ('advanced_qc', (DataPresent, 'flag', True)),
+#        ('advanced_uncertainty', (DataPresent, 'flag', True)),
+#        ('advanced_homogenisation', (DataPresent, 'flag', True)),
+        ('source_id', (SourceConfiguration, 'source_id', True)),
     ])
 
     # Structure of foreign key mappings:
