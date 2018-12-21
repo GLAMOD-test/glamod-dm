@@ -47,7 +47,7 @@ class FileParser(object):
 
     def readline(self):
         "Reads next line and splits on delimiter."
-        return [_.strip() for _ in self._fh.readline().rstrip().split(self.delimiter)]         
+        return [_.strip() for _ in self._fh.readline().rstrip().split(self.delimiter)]
 
 
     def get_column_names(self):

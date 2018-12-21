@@ -174,7 +174,7 @@ class StationConfigurationDBWriter(_DBWriterBase):
         main_record, deliveries_record = self._extract_station_config_and_deliveries_dicts(rec)
 
         log('INFO', 'Writing extra info to deliveries DB: {}'.format(str(deliveries_record)))
-        StationConfigurationLookupFields.objects.using('deliveries_db').get_or_create(**deliveries_record)
+        StationConfigurationLookupFields.objects.get_or_create(**deliveries_record)
 
         try:
             log('INFO', 'Writing main record: {}'.format(str(main_record)))
