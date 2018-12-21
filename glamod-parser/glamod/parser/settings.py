@@ -25,7 +25,7 @@ INT_NAN = -9999
 
 VERBOSE_LOGGING = False
 
-CHUNK_SIZE = 25
+CHUNK_SIZE = 10000
 RECORD_COUNT_ZERO_PAD = '07d' # 10 million records limit expected
 CHUNK_CACHE_DIR = './chunk-cache'
 CHUNK_CACHE_DIR_DEPTH = 2

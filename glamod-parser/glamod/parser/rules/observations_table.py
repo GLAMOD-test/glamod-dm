@@ -49,7 +49,7 @@ class ObservationsTableParserRules(_ParserRulesBase):
 #        ('bbox_max_latitude', float_or_empty),
 #        ('spatial_representativeness', int_or_empty),
         ('quality_flag', int_or_empty),
-        ('numerical_precision', int),
+        ('numerical_precision', float),
 #        ('sensor', int_or_empty),
 #        ('sensor_automation_status', int_or_empty),
 #        ('exposure_of_sensor', int_or_empty),
