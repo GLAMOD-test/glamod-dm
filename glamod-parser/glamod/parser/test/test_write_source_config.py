@@ -1,4 +1,4 @@
-from settings import *
+from glamod.parser.settings import *
 
 """
 Fixes:

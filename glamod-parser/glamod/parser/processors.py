@@ -1,5 +1,6 @@
 import os
 from collections import OrderedDict as OD
+from importlib import import_module
 
 import stringcase
 
@@ -91,7 +92,7 @@ class _DeliveryProcessorBase(object):
         if not mod_name:
             mod_name = stringcase.snakecase(check_type)
 
-        mod = __import__(mod_name)
+        mod = import_module('.' + mod_name, package='glamod.parser')
         return getattr(mod, class_name)
 
     def _get_content_check(self, fpath):
@@ -138,3 +139,12 @@ class HeaderAndObsTableProcessor(_DeliveryProcessorBase):
     def _write_to_db(self):
         log('INFO', 'Loading data for Header Table files.')
         log('INFO', 'Loading data for Observation Table files.')
+        
+        for ftype in self.FILE_TYPES:
+            log('INFO', f'Writing data to DB for files of type: {ftype}')
+
+            chunks = self.chunk_dict[ftype]
+            db_writer_class = self._get_db_writer(chunks[0])
+
+            db_writer = db_writer_class(chunks)
+            db_writer.write_to_db()
