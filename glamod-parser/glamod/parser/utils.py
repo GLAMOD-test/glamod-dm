@@ -9,19 +9,12 @@ import os
 import zipfile
 import logging
 
-logger = None
+logger = logging.getLogger(__file__)
 
 from glamod.parser.exceptions import ParserError
 
 # Following settings import includes all Django Models
 from glamod.parser.settings import *
-
-
-def _get_logger():
-    if logger: return logger
-
-    logger = logging.getLogger(__file__)
-    return logger
 
 
 def log(level, msg):
@@ -33,12 +26,10 @@ def log(level, msg):
     :return: None
     """
     level = level.upper()
-    _levels = ['NOTSET', 'DEBUG', 'INFO', 'WARN', 'WARNING', 'ERROR', 'CRITICAL']
+    if isinstance(level, str):
+        level = logging.getLevelName(level)
 
-    if level not in _levels:
-        raise KeyError('Unrecognised log level: {}'.format(level))
-
-    print('[{}] {}'.format(level, msg))
+    logger.log(level, msg)
 
 
 def timeit(method):

@@ -10,6 +10,7 @@ from .settings import REGEX_SAFE
 
 class _StructureCheck(object):
 
+    _EXPECTED_DIRS = []
     _EXPECTED_FILES = []
     
 
@@ -44,17 +45,16 @@ class _StructureCheck(object):
 
 
     def _validate_sub_dirs(self):
-        expected_dirs = set([os.path.dirname(path) for path in self._EXPECTED_FILES])
         errs = []
 
-        for dr in expected_dirs:
+        for dr in self._EXPECTED_DIRS:
             if dr not in self._contents:
                 errs.append('Required directory "{}" not found in delivery'.format(dr))
 
-        extras = set(expected_dirs).symmetric_difference(set(self._contents))
+        extras = set(self._EXPECTED_DIRS).symmetric_difference(set(self._contents))
 
         if extras:
-            errs.append('Unexpected directories found: {}'.format(str(extras)))
+            log('WARN', 'Unexpected directories found: {}'.format(str(extras)))
 
         if errs:
             err_string = '\n' + ', \n'.join(errs)
@@ -69,16 +69,17 @@ class _StructureCheck(object):
         errs = []
         found_files = []
 
-        for root, subdirs, files in os.walk(self.top_dir):
-            for fname in files:
-                found_files.append(os.path.join(root, fname))
+        for dr in self._EXPECTED_DIRS:
+            for fname in os.listdir(dr):
+                found_files.append(os.path.join(dr, fname))
 
         for exp in self._EXPECTED_FILES: 
+            found = False
             for found in found_files:
-                if re.match(exp, found.replace(self.top_dir + '/', '')):
+                if re.match(exp, os.path.basename(found)):
                     self._files.append(found)
-                    break
-            else:
+                    found = True
+            if not found:
                 errs.append('[ERROR] File with pattern "{}" not found'.format(exp))
  
         if errs:
@@ -91,9 +92,15 @@ class _StructureCheck(object):
 
 class SourceAndStationConfigStructureCheck(_StructureCheck):
 
+    _EXPECTED_DIRS = [
+        'source_configuration',
+        'station_configuration',
+    ]
     _EXPECTED_FILES = [
-        'source_configuration/source_configuration_({}+)\.psv'.format(REGEX_SAFE),
-        'station_configuration/station_configuration_({}+)\.psv'.format(REGEX_SAFE) ]
+        'source_configuration_({}+)\.psv'.format(REGEX_SAFE),
+        'station_configuration_({}+)\.psv'.format(REGEX_SAFE),
+    ]
+
 
     def _specific_checks(self):
         pass
@@ -101,13 +108,18 @@ class SourceAndStationConfigStructureCheck(_StructureCheck):
 
 class HeaderAndObservationsTablesStructureCheck(_StructureCheck):
 
+    _EXPECTED_DIRS = [
+        'header_table/monthly',
+        'observations_table/monthly',
+    ]
     _EXPECTED_FILES = [
-        'header_table/header_table_.*\.psv',
-        'observations_table/observations_table_.*\.psv']
+        'header_table_.*\.psv',
+        'observations_table_.*\.psv',
+    ]
 
 
     def _specific_checks(self):
-        pass #self._validate_file_lengths()
+        self._validate_file_lengths()
 
 
     def _validate_file_lengths(self):
@@ -130,5 +142,3 @@ class HeaderAndObservationsTablesStructureCheck(_StructureCheck):
                               '{}'.format(self.top_dir, err_string))
 
         log('INFO', 'Checked file structure (not content yet).')
-
-
