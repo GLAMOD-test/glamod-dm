@@ -8,13 +8,17 @@ Plan for generic content check:
 """
 
 import copy
+import logging
 
 from glamod.parser.settings import INPUT_ENCODING, INPUT_DELIMITER, INT_NAN
-from glamod.parser.utils import log, db_model_to_field
+from glamod.parser.utils import db_model_to_field
 from glamod.parser.file_parser import FileParser
 from glamod.parser.rules import (
      SourceConfigurationParserRules, StationConfigurationParserRules,
      HeaderTableParserRules, ObservationsTableParserRules)
+
+
+logger = logging.getLogger(__name__)
 
 
 class _ContentCheck(object):
@@ -27,7 +31,7 @@ class _ContentCheck(object):
 
 
     def run(self):
-        log('INFO', 'Starting {} on: {}'.format(self._cls, self.fpath))
+        logger.info('Starting {} on: {}'.format(self._cls, self.fpath))
         self._parser = FileParser(self.fpath)
        
         # Check column names are correct
@@ -66,7 +70,7 @@ class _ContentCheck(object):
         for lookup_col, _model_details in code_table_fields_dct.items():
 
             _model = _model_details[0]
-            log('INFO', 'Checking column "{}" in: {}'.format(lookup_col, self.fpath))
+            logger.info('Checking column "{}" in: {}'.format(lookup_col, self.fpath))
             self._check_lookups_exist_in_code_table(df[lookup_col], df[index_field],
                                                     _model)
         
@@ -96,7 +100,7 @@ class _ContentCheck(object):
             try:
                 _check = model.objects.filter(pk=value)
             except:
-                log('ERROR', 'Could not lookup value "{}" in code table, so IGNORING check.'
+                logger.error('Could not lookup value "{}" in code table, so IGNORING check.'
                              .format(value))
                 continue
 
@@ -104,7 +108,7 @@ class _ContentCheck(object):
                 not_found[value] = dct[value]
 
         if not_found:
-            log('WARN', 'The following record IDs were not found in table "{}":'.format(
+            logger.warn('The following record IDs were not found in table "{}":'.format(
                   db_model_to_field(model.__name__)))
 
             for key in sorted(not_found.keys()):
@@ -114,7 +118,7 @@ class _ContentCheck(object):
                     format = '{}'
 
                 _tmpl = 'Unmatched ID:  ' + format + '; Record indexes: {}'
-                log('WARN', _tmpl.format(key, not_found[key]))
+                logger.warn(_tmpl.format(key, not_found[key]))
 
         return not_found
 
@@ -133,7 +137,7 @@ class SourceConfigurationContentCheck(_ContentCheck):
 
     def run(self): 
         super(SourceConfigurationContentCheck, self).run()
-        log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
+        logger.info('Completed {} on: {}'.format(self._cls, self.fpath))
 
 
 class StationConfigurationContentCheck(_ContentCheck):
@@ -142,7 +146,7 @@ class StationConfigurationContentCheck(_ContentCheck):
 
     def run(self):
         super(StationConfigurationContentCheck, self).run()
-        log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
+        logger.info('Completed {} on: {}'.format(self._cls, self.fpath))
 
 
 class HeaderTableContentCheck(_ContentCheck):
@@ -151,7 +155,7 @@ class HeaderTableContentCheck(_ContentCheck):
 
     def run(self):
         super(HeaderTableContentCheck, self).run()
-        log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
+        logger.info('Completed {} on: {}'.format(self._cls, self.fpath))
 
 
 class ObservationsTableContentCheck(_ContentCheck):
@@ -160,4 +164,4 @@ class ObservationsTableContentCheck(_ContentCheck):
 
     def run(self):
         super(ObservationsTableContentCheck, self).run()
-        log('INFO', 'Completed {} on: {}'.format(self._cls, self.fpath))
+        logger.info('Completed {} on: {}'.format(self._cls, self.fpath))

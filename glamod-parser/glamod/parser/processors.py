@@ -1,16 +1,20 @@
 import os
+import logging
 from collections import OrderedDict as OD
 from importlib import import_module
 
 import stringcase
 
-from .utils import log, timeit, map_file_type
+from .utils import timeit, map_file_type
 
 from .structure_check import (SourceAndStationConfigStructureCheck,
     HeaderAndObservationsTablesStructureCheck)
 from .logic_check import (SourceConfigurationLogicCheck,
     StationConfigurationLogicCheck, HeaderTableLogicCheck,
     ObservationsTableLogicCheck)
+
+
+logger = logging.getLogger(__name__)
 
 
 class _DeliveryProcessorBase(object):
@@ -48,7 +52,7 @@ class _DeliveryProcessorBase(object):
     def _run_content_checks(self):
 
         for ftype in self.FILE_TYPES:
-            log('INFO', f'Content checks for files of type: {ftype}')
+            logger.info(f'Content checks for files of type: {ftype}')
 
             for fpath in self.data_files[ftype]:
 
@@ -62,7 +66,7 @@ class _DeliveryProcessorBase(object):
     def _run_logic_checks(self):
 
         for ftype in self.FILE_TYPES:
-            log('INFO', f'Logic checks for files of type: {ftype}')
+            logger.info(f'Logic checks for files of type: {ftype}')
 
             chunks = self.chunk_dict[ftype]
             logic_check_class = self._get_logic_check(chunks[0])
@@ -116,7 +120,7 @@ class SourceAndStationConfigProcessor(_DeliveryProcessorBase):
     def _write_to_db(self):
 
         for ftype in self.FILE_TYPES:
-            log('INFO', f'Writing data to DB for files of type: {ftype}')
+            logger.info(f'Writing data to DB for files of type: {ftype}')
 
             chunks = self.chunk_dict[ftype]
             db_writer_class = self._get_db_writer(chunks[0])
@@ -137,11 +141,11 @@ class HeaderAndObsTableProcessor(_DeliveryProcessorBase):
 
     @timeit
     def _write_to_db(self):
-        log('INFO', 'Loading data for Header Table files.')
-        log('INFO', 'Loading data for Observation Table files.')
+        logger.info('Loading data for Header Table files.')
+        logger.info('Loading data for Observation Table files.')
         
         for ftype in self.FILE_TYPES:
-            log('INFO', f'Writing data to DB for files of type: {ftype}')
+            logger.info(f'Writing data to DB for files of type: {ftype}')
 
             chunks = self.chunk_dict[ftype]
             db_writer_class = self._get_db_writer(chunks[0])

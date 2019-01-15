@@ -1,11 +1,15 @@
 
 import os
 import re
+import logging
 
 
-from .utils import count_lines, report_errors, log
+from .utils import count_lines, report_errors
 from .exceptions import ParserError
 from .settings import REGEX_SAFE
+
+
+logger = logging.getLogger(__name__)
 
 
 class _StructureCheck(object):
@@ -54,14 +58,14 @@ class _StructureCheck(object):
         extras = set(self._EXPECTED_DIRS).symmetric_difference(set(self._contents))
 
         if extras:
-            log('WARN', 'Unexpected directories found: {}'.format(str(extras)))
+            logger.warn('Unexpected directories found: {}'.format(str(extras)))
 
         if errs:
             err_string = '\n' + ', \n'.join(errs)
             raise ParserError('[ERROR] Errors found validating directory: {}:'
                               '{}'.format(self.top_dir, err_string))
           
-        log('INFO', 'Checked: directory structure.')
+        logger.info('Checked: directory structure.')
 
 
     def _validate_file_existence(self):
@@ -87,7 +91,7 @@ class _StructureCheck(object):
             raise ParserError('[ERROR] Errors found validating files: {}:'
                               '{}'.format(self.top_dir, err_string))
 
-        log('INFO', 'Checked file structure (not content yet).')
+        logger.info('Checked file structure (not content yet).')
 
 
 class SourceAndStationConfigStructureCheck(_StructureCheck):
@@ -141,4 +145,4 @@ class HeaderAndObservationsTablesStructureCheck(_StructureCheck):
             raise ParserError('[ERROR] Errors found validating files: {}:'
                               '{}'.format(self.top_dir, err_string))
 
-        log('INFO', 'Checked file structure (not content yet).')
+        logger.info('Checked file structure (not content yet).')

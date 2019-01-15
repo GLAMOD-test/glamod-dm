@@ -6,14 +6,17 @@ Created on 01 Oct 2018
 
 import os
 import pickle
-
+import logging
 import pandas
 
 from glamod.parser.exceptions import ParserError
-from glamod.parser.utils import get_path_sub_dirs, safe_mkdir, log
+from glamod.parser.utils import get_path_sub_dirs, safe_mkdir
 from glamod.parser.settings import (INPUT_ENCODING, INPUT_DELIMITER, 
     VERBOSE_LOGGING, CHUNK_SIZE, RECORD_COUNT_ZERO_PAD, CHUNK_CACHE_DIR_DEPTH,
     CHUNK_CACHE_DIR)
+
+
+logger = logging.getLogger(__name__)
 
 
 class FileParser(object):
@@ -91,15 +94,15 @@ class FileParser(object):
         # Loop through chunks, converting to dicts and writing to cache
         for counter, df in enumerate(_chunk_reader):
 
-            log('DEBUG', 'Chunking as DataFrame, but "to_dict(\'records\')" also allowed...?')
+            logger.debug('Chunking as DataFrame, but "to_dict(\'records\')" also allowed...?')
             out_path = self._get_chunk_file_path(counter, len(df))
             self.chunks.append(out_path)
 
-            log('INFO', 'Pickling chunk to: "{}"'.format(out_path))
+            logger.info('Pickling chunk to: "{}"'.format(out_path))
             with open(out_path, 'wb') as writer:
                 pickle.dump(df, writer, protocol=2)
 
-        log('INFO', 'All chunks written for: "{}"'.format(self.fpath))
+        logger.info('All chunks written for: "{}"'.format(self.fpath))
 
 
     def close(self):
