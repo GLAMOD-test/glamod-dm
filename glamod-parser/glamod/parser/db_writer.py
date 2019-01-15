@@ -46,10 +46,10 @@ class _DBWriterBase(object):
     def _write_chunk(self, df):
 
         for count, record in enumerate(df.to_dict('records')):
-            print(f'Writing record: {count + 1:5d}')
+            log('DEBUG', f'Writing record: {count + 1:5d}')
 
             created = self._write_record(record)
-            print('Was it created? {}'.format(str(created)))
+            log('DEBUG', 'Was it created? {}'.format(str(created)))
 
 
     def _write_record(self, record):
@@ -60,7 +60,7 @@ class _DBWriterBase(object):
         try:
             _, created = self.app_model.objects.get_or_create(**rec)
         except Exception as err:
-            print(str(rec))
+            log('ERROR', str(rec))
             raise Exception(err)
 
         return created
@@ -71,9 +71,9 @@ class _DBWriterBase(object):
         # Returns the record dictionary with changes as required
         rec = copy.deepcopy(record)
 
-        for key in sorted(record.keys()): print('IN REC: {}: {}'.format(key, record[key]))
+        for key in sorted(record.keys()): log('DEBUG', 'IN REC: {}: {}'.format(key, record[key]))
         for key in sorted(self.rules.foreign_key_fields_to_add.keys()):
-            print('NEEDED AS FK: {}: {}'.format(key, record[key]))
+            log('DEBUG', 'NEEDED AS FK: {}: {}'.format(key, record[key]))
 
         for fk_field, (fk_model, fk_arg, is_primary_key) in self.rules.foreign_key_fields_to_add.items():
 
@@ -92,7 +92,7 @@ class _DBWriterBase(object):
                 del rec[fk_field]
                 continue
 
-            log('WARN', 'Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
+            log('DEBUG', 'Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
 
             # Since some are lists we need to manage them differently
             if type(value) == list:
@@ -142,9 +142,6 @@ class SourceConfigurationDBWriter(_DBWriterBase):
 
     app_model = SourceConfiguration
     rules = SourceConfigurationParserRules()
-
-#    def write_to_db(self):
-#        log('WARN', 'DISABLED FOR: {}!!!!!'.format(self.ftype))
 
 
 class StationConfigurationDBWriter(_DBWriterBase):
