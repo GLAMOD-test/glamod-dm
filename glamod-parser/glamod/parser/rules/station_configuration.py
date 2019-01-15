@@ -70,7 +70,7 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('source_id', str)
     ])
 
-    extended_fields_to_duplicate = ('primary_id',)
+    extended_fields_to_duplicate = ('primary_id', 'record_number')
 
     index_field = 'primary_id'
 
