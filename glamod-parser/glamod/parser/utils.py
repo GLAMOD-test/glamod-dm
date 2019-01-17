@@ -9,27 +9,12 @@ import os
 import zipfile
 import logging
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 from glamod.parser.exceptions import ParserError
 
 # Following settings import includes all Django Models
 from glamod.parser.settings import *
-
-
-def log(level, msg):
-    """
-    Log message `msg` at level `level`.
-   
-    :param level: level of logging ('INFO', 'ERROR' etc..)
-    :param msg: message to log.
-    :return: None
-    """
-    level = level.upper()
-    if isinstance(level, str):
-        level = logging.getLevelName(level)
-
-    logger.log(level, msg)
 
 
 def timeit(method):
@@ -40,13 +25,13 @@ def timeit(method):
         te = time.time()
 
         method_name = method.__qualname__
-        log('INFO', 'TIMED FUNCTION: "{}" ran in: {:.5f} seconds'.format(method_name, (te - ts)))
+        logger.info('TIMED FUNCTION: "{}" ran in: {:.5f} seconds'.format(method_name, (te - ts)))
         return result
     return timed
 
 
 def unzip(location, target_dir):
-    log('INFO', 'Found zip file: {}'.format(location))
+    logger.info('Found zip file: {}'.format(location))
     target_dir = os.path.abspath(target_dir)
 
     safe_mkdir(target_dir)
@@ -61,7 +46,7 @@ def unzip(location, target_dir):
         raise ParserError('[ERROR] Zip file must unzip to directory with identical name '
                           'with ".zip" extension removed. Not: \n{}'.format(str(contents))) 
 
-    log('INFO', 'Unzipped contents to: {}'.format(target_dir))
+    logger.info('Unzipped contents to: {}'.format(target_dir))
     return os.path.join(target_dir, expected_subdir)
 
 
@@ -77,7 +62,7 @@ def count_lines(fpath):
         for _ in reader:
             count += 1
 
-    log('INFO', 'File length of "{}" is: {}'.format(fpath, count))
+    logger.info('File length of "{}" is: {}'.format(fpath, count))
     return count
 
 

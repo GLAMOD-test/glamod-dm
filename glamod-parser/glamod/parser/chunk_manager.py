@@ -1,9 +1,9 @@
-
+import logging
 import pickle
 from queue import deque
 
 
-from glamod.parser.utils import log
+logger = logging.getLogger(__name__)
 
 
 class ChunkManager(object):
@@ -22,7 +22,7 @@ class ChunkManager(object):
             raise IOError('All chunks already read!')
 
         next_chunk = self.remaining.popleft()
-        log('DEBUG', 'Reading DataFrame from chunk: {}'.format(next_chunk))
+        logger.info('Reading DataFrame from chunk: {}'.format(next_chunk))
 
         with open(next_chunk, 'rb') as reader:
             return pickle.load(reader)

@@ -5,10 +5,11 @@ from django.contrib.gis.db import models
 
 class StationConfigurationLookupFields(models.Model):
 
-    primary_id = models.CharField(primary_key=True, max_length=256)
+    primary_id = models.CharField(max_length=256)
+    record_number = models.IntegerField()
 
 #    region = models.ForeignKey('Region', models.DO_NOTHING, db_column='region', blank=True, null=True)
-    region = models.IntegerField()
+    region = models.IntegerField(null=True, blank=True)
 #    data_policy_licence = models.ForeignKey(DataPolicyLicence, models.DO_NOTHING, db_column='data_policy_licence', blank=True, null=True)
     data_policy_licence = models.IntegerField()
     primary_station_id_scheme = models.IntegerField()

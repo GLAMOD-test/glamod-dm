@@ -8,7 +8,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'glamod_site.settings'
 import django
 django.setup()
 
-print("[INFO] Importing django models for db checks...")
+print('Importing django models for db checks...')
 from cdmapp.models import *
 from cdmapp.models import _ALL_MODELS
 

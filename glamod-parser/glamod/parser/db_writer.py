@@ -1,16 +1,20 @@
 import copy
+import logging
 from collections import OrderedDict as OD
 
 from django.db import transaction
 
 
 from glamod.parser.settings import *
-from glamod.parser.utils import log, timeit
+from glamod.parser.utils import timeit
 from glamod.parser.chunk_manager import ChunkManager
 
 from glamod.parser.rules import (SourceConfigurationParserRules,
     StationConfigurationParserRules, HeaderTableParserRules,
     ObservationsTableParserRules)
+
+
+logger = logging.getLogger(__name__)
 
 
 class _DBWriterBase(object):
@@ -20,14 +24,14 @@ class _DBWriterBase(object):
 
     def __init__(self, chunks):
         self.ftype = self.__class__.__name__.replace('DBWriter', '')
-        log('INFO', 'Initiating DB Writer for: {}'.format(self.ftype))
+        logger.info('Initiating DB Writer for: {}'.format(self.ftype))
 
         self.chunks = sorted(chunks)
         self.cm = ChunkManager(self.chunks)
 
     @timeit
     def write_to_db(self):
-        log('INFO', 'Completed Logic Checks for: {}'.format(self.ftype))
+        logger.info('Completed Logic Checks for: {}'.format(self.ftype))
         while 1:
             try:
                 df = self.cm.get_next_chunk()
@@ -46,10 +50,10 @@ class _DBWriterBase(object):
     def _write_chunk(self, df):
 
         for count, record in enumerate(df.to_dict('records')):
-            print(f'Writing record: {count + 1:5d}')
+            logger.debug(f'Writing record: {count + 1:5d}')
 
             created = self._write_record(record)
-            print('Was it created? {}'.format(str(created)))
+            logger.debug('Was it created? {}'.format(str(created)))
 
 
     def _write_record(self, record):
@@ -60,7 +64,7 @@ class _DBWriterBase(object):
         try:
             _, created = self.app_model.objects.get_or_create(**rec)
         except Exception as err:
-            print(str(rec))
+            logger.error(str(rec))
             raise Exception(err)
 
         return created
@@ -71,9 +75,9 @@ class _DBWriterBase(object):
         # Returns the record dictionary with changes as required
         rec = copy.deepcopy(record)
 
-        for key in sorted(record.keys()): print('IN REC: {}: {}'.format(key, record[key]))
+        for key in sorted(record.keys()): logger.debug('IN REC: {}: {}'.format(key, record[key]))
         for key in sorted(self.rules.foreign_key_fields_to_add.keys()):
-            print('NEEDED AS FK: {}: {}'.format(key, record[key]))
+            logger.debug('NEEDED AS FK: {}: {}'.format(key, record[key]))
 
         for fk_field, (fk_model, fk_arg, is_primary_key) in self.rules.foreign_key_fields_to_add.items():
 
@@ -83,16 +87,16 @@ class _DBWriterBase(object):
             value = rec[fk_field]
 
             if isinstance(value, str) and not value and is_primary_key:
-                log('DEBUG', f'Ignoring empty string foreign key: {fk_field}')
+                logger.debug(f'Ignoring empty string foreign key: {fk_field}')
                 del rec[fk_field]
                 continue
 
             if value == INT_NAN and is_primary_key:
-                log('DEBUG', f'Ignoring NAN field for: {fk_field}')
+                logger.debug(f'Ignoring NAN field for: {fk_field}')
                 del rec[fk_field]
                 continue
 
-            log('WARN', 'Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
+            logger.debug('Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
 
             # Since some are lists we need to manage them differently
             if type(value) == list:
@@ -129,11 +133,11 @@ class _DBWriterBase(object):
     def _get_or_create(self, db_model, kwargs):
 
         model_class = db_model.__name__
-        log('DEBUG', 'Writing {} with args: {}'.format(model_class, kwargs))
+        logger.debug('Writing {} with args: {}'.format(model_class, kwargs))
         obj, created = db_model.objects.get_or_create(**kwargs)
 
         if created:
-            log('INFO', 'Created record: {} (type: {})'.format(obj, model_class))
+            logger.info('Created record: {} (type: {})'.format(obj, model_class))
 
         return obj
 
@@ -142,9 +146,6 @@ class SourceConfigurationDBWriter(_DBWriterBase):
 
     app_model = SourceConfiguration
     rules = SourceConfigurationParserRules()
-
-#    def write_to_db(self):
-#        log('WARN', 'DISABLED FOR: {}!!!!!'.format(self.ftype))
 
 
 class StationConfigurationDBWriter(_DBWriterBase):
@@ -173,14 +174,14 @@ class StationConfigurationDBWriter(_DBWriterBase):
         # Now split out into two dicts and write accordingly
         main_record, deliveries_record = self._extract_station_config_and_deliveries_dicts(rec)
 
-        log('INFO', 'Writing extra info to deliveries DB: {}'.format(str(deliveries_record)))
+        logger.debug('Writing extra info to deliveries DB: {}'.format(str(deliveries_record)))
         StationConfigurationLookupFields.objects.get_or_create(**deliveries_record)
 
         try:
-            log('INFO', 'Writing main record: {}'.format(str(main_record)))
+            logger.debug('Writing main record: {}'.format(str(main_record)))
             _, created = self.app_model.objects.get_or_create(**main_record)
         except Exception as err:
-            log('ERROR', 'MAIN RECORD FAILED TO WRITE: {}'.format(str(main_record)))
+            logger.error('MAIN RECORD FAILED TO WRITE: {}'.format(str(main_record)))
             raise Exception(main_record)
 
         return created
