@@ -47,56 +47,76 @@ class _DBWriterBase(object):
                 break
 
 
+    @timeit
     def _write_chunk(self, df):
 
-        for count, record in enumerate(df.to_dict('records')):
-            logger.debug(f'Writing record: {count + 1:5d}')
+        records = []
+        for _, record in enumerate(df.to_dict('records')):
+            records.append(self._create_record(record))
+        
+        self.app_model.objects.bulk_create(records)
 
-            created = self._write_record(record)
-            logger.debug('Was it created? {}'.format(str(created)))
 
-
-    def _write_record(self, record):
-        # Deal with foreign key components in the record first
-        # Return boolean for whether record was created
-        rec = self._resolve_related_records(record)
-
+    def _create_record(self, record):
+        """
+        Return boolean for whether record was created
+        """
+        
+        # Remove non-field keys in record dictionary
+        field_values = self._extract_fields(record)
+        
         try:
-            _, created = self.app_model.objects.get_or_create(**rec)
+            record_object = self.app_model(**field_values)
         except Exception as err:
-            logger.error(str(rec))
+            logger.error(str(field_values))
             raise Exception(err)
 
-        return created
+        return record_object
+
+
+    def _extract_fields(self, record):
+        """
+        Convert a dictionary of record values into a dictionary of
+        Django model field values.
+        """
+        
+        field_values = copy.deepcopy(record)
+        
+        # Deal with foreign key components in the record
+        field_values = self._resolve_related_records(field_values)
+        
+        return field_values
 
 
     def _resolve_related_records(self, record):
-        # Write records in code tables and other foreign key relationships
-        # Returns the record dictionary with changes as required
-        rec = copy.deepcopy(record)
+        """
+        Write records in code tables and other foreign key relationships
+        Returns the record dictionary with changes as required
+        """
 
-        for key in sorted(record.keys()): logger.debug('IN REC: {}: {}'.format(key, record[key]))
-        for key in sorted(self.rules.foreign_key_fields_to_add.keys()):
-            logger.debug('NEEDED AS FK: {}: {}'.format(key, record[key]))
+        if logger.isEnabledFor(logging.DEBUG):
+            for key in sorted(record.keys()): logger.debug('IN REC: {}: {}'.format(key, record[key]))
+            for key in sorted(self.rules.foreign_key_fields_to_add.keys()):
+                logger.debug('NEEDED AS FK: {}: {}'.format(key, record[key]))
 
         for fk_field, (fk_model, fk_arg, is_primary_key) in self.rules.foreign_key_fields_to_add.items():
 
-#            if fk_field == 'region':
-#                import pdb; pdb.set_trace()
-
-            value = rec[fk_field]
+            value = record[fk_field]
 
             if isinstance(value, str) and not value and is_primary_key:
-                logger.debug(f'Ignoring empty string foreign key: {fk_field}')
-                del rec[fk_field]
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(f'Ignoring empty string foreign key: {fk_field}')
+                del record[fk_field]
                 continue
 
             if value == INT_NAN and is_primary_key:
-                logger.debug(f'Ignoring NAN field for: {fk_field}')
-                del rec[fk_field]
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(f'Ignoring NAN field for: {fk_field}')
+                del record[fk_field]
                 continue
 
-            logger.debug('Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug('Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
 
             # Since some are lists we need to manage them differently
             if type(value) == list:
@@ -115,12 +135,13 @@ class _DBWriterBase(object):
                 # the simple field. Have to do this if using the secondary database for extra
                 # fields
                 if fk_field not in self.rules.extended_fields.keys():
-                    rec[fk_field] = fk_obj
+                    record[fk_field] = fk_obj
 
-        return rec
+        return record
 
 
     def _get_fk_kwargs(self, fk_model, value, fk_arg, is_primary_key):
+        
         if is_primary_key:
             kwargs = {'pk': value}
         else:
@@ -133,7 +154,8 @@ class _DBWriterBase(object):
     def _get_or_create(self, db_model, kwargs):
 
         model_class = db_model.__name__
-        logger.debug('Writing {} with args: {}'.format(model_class, kwargs))
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('Writing {} with args: {}'.format(model_class, kwargs))
         obj, created = db_model.objects.get_or_create(**kwargs)
 
         if created:
@@ -154,7 +176,7 @@ class StationConfigurationDBWriter(_DBWriterBase):
     rules = StationConfigurationParserRules()
 
 
-    def _write_record(self, record):
+    def _extract_fields(self, record):
         """
         For Station Configuration we need to separate out each record into:
             1. Records for real StationConfiguration table
@@ -167,24 +189,19 @@ class StationConfigurationDBWriter(_DBWriterBase):
         :param record: dictionary of items to write to DB record.
         :return: Boolean to indicate is record was created
         """
-        # Deal with foreign key components in the record first
-        # Return boolean for whether record was created
-        rec = self._resolve_related_records(record)
-
+        
+        record_copy = copy.deepcopy(record)
+        # Deal with foreign key components in the record
+        record_copy = self._resolve_related_records(record_copy)
+        
         # Now split out into two dicts and write accordingly
-        main_record, deliveries_record = self._extract_station_config_and_deliveries_dicts(rec)
-
-        logger.debug('Writing extra info to deliveries DB: {}'.format(str(deliveries_record)))
+        field_values, deliveries_record = self._extract_station_config_and_deliveries_dicts(record_copy)
+        
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('Writing extra info to deliveries DB: {}'.format(str(deliveries_record)))
         StationConfigurationLookupFields.objects.get_or_create(**deliveries_record)
-
-        try:
-            logger.debug('Writing main record: {}'.format(str(main_record)))
-            _, created = self.app_model.objects.get_or_create(**main_record)
-        except Exception as err:
-            logger.error('MAIN RECORD FAILED TO WRITE: {}'.format(str(main_record)))
-            raise Exception(main_record)
-
-        return created
+        
+        return field_values
 
 
     def _extract_station_config_and_deliveries_dicts(self, record):
