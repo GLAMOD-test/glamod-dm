@@ -55,9 +55,15 @@ class StationConfigurationLogicCheck(_LogicCheckBase):
 
 
 class HeaderTableLogicCheck(_LogicCheckBase):
-    pass
+
+    @timeit
+    def run(self):
+        pass
 
 
 class ObservationsTableLogicCheck(_LogicCheckBase):
-    pass
+
+    @timeit
+    def run(self):
+        pass
 

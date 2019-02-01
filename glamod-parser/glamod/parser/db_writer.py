@@ -8,10 +8,12 @@ from django.db import transaction
 from glamod.parser.settings import *
 from glamod.parser.utils import timeit
 from glamod.parser.chunk_manager import ChunkManager
+from glamod.parser.exceptions import ParserError
 
 from glamod.parser.rules import (SourceConfigurationParserRules,
     StationConfigurationParserRules, HeaderTableParserRules,
     ObservationsTableParserRules)
+from django.core.exceptions import ObjectDoesNotExist
 
 
 logger = logging.getLogger(__name__)
@@ -40,8 +42,8 @@ class _DBWriterBase(object):
                     # Write all these changes atomically
                     with transaction.atomic():
                         self._write_chunk(df)
-                except Exception as err:
-                    raise Exception(err)
+                except ParserError as err:
+                    logger.error(err)
 
             except IOError:
                 break
@@ -54,7 +56,11 @@ class _DBWriterBase(object):
         for _, record in enumerate(df.to_dict('records')):
             records.append(self._create_record(record))
         
-        self.app_model.objects.bulk_create(records)
+        for record in records:
+            record.save()
+        
+        #TODO: find a way to use bulk_create
+        #self.app_model.objects.bulk_create(records)
 
 
     def _create_record(self, record):
@@ -93,44 +99,52 @@ class _DBWriterBase(object):
         Write records in code tables and other foreign key relationships
         Returns the record dictionary with changes as required
         """
-
+        
         if logger.isEnabledFor(logging.DEBUG):
             for key in sorted(record.keys()): logger.debug('IN REC: {}: {}'.format(key, record[key]))
             for key in sorted(self.rules.foreign_key_fields_to_add.keys()):
                 logger.debug('NEEDED AS FK: {}: {}'.format(key, record[key]))
-
+        
+        for lookup in self.rules.vlookups:
+            lookup_data = lookup.resolve(record)
+            if lookup_data:
+                record.update(lookup_data)
+            else:
+                if lookup.get_key() in record:
+                    del record[lookup.get_key()]
+        
         for fk_field, (fk_model, fk_arg, is_primary_key) in self.rules.foreign_key_fields_to_add.items():
-
+            
             value = record[fk_field]
-
+            
             if isinstance(value, str) and not value and is_primary_key:
                 if logger.isEnabledFor(logging.DEBUG):
                     logger.debug(f'Ignoring empty string foreign key: {fk_field}')
                 del record[fk_field]
                 continue
-
+    
             if value == INT_NAN and is_primary_key:
                 if logger.isEnabledFor(logging.DEBUG):
                     logger.debug(f'Ignoring NAN field for: {fk_field}')
                 del record[fk_field]
                 continue
-
+    
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug('Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
-
+    
             # Since some are lists we need to manage them differently
             if type(value) == list:
-
+    
                 for item in value:
                     kwargs = self._get_fk_kwargs(fk_model, item, fk_arg, is_primary_key)
-                    self._get_or_create(fk_model, kwargs)
-
+                    self._get(fk_model, kwargs)
+    
                 # Don't set the FK field here as already set as: value
-
+    
             else:
                 kwargs = self._get_fk_kwargs(fk_model, value, fk_arg, is_primary_key)
-                fk_obj = self._get_or_create(fk_model, kwargs)
-
+                fk_obj = self._get(fk_model, kwargs)
+    
                 # Now work out whether to set the FK object as the value or to just keep
                 # the simple field. Have to do this if using the secondary database for extra
                 # fields
@@ -151,15 +165,16 @@ class _DBWriterBase(object):
         return kwargs
 
 
-    def _get_or_create(self, db_model, kwargs):
+    def _get(self, db_model, kwargs):
 
         model_class = db_model.__name__
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug('Writing {} with args: {}'.format(model_class, kwargs))
-        obj, created = db_model.objects.get_or_create(**kwargs)
-
-        if created:
-            logger.info('Created record: {} (type: {})'.format(obj, model_class))
+        
+        try:
+            obj = db_model.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            logger.error(f'{db_model} not found with query: {kwargs}')
 
         return obj
 

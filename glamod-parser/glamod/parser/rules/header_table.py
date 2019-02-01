@@ -6,62 +6,52 @@ from glamod.parser.convertors import *
 from glamod.parser.settings import *
 
 
-from ._base import OD, _ParserRulesBase
+from ._base import OD, _ParserRulesBase, ForeignKeyLookup, LinkedLookup
 
 
 class HeaderTableParserRules(_ParserRulesBase):
 
-    vlookup_fields = {
-        'StationConfiguration': {
-            'station_name': 'station_name',
-            'station_type': 'station_type',
-            'platform_type': 'platform_type',
-            'platform_sub_type': 'platform_sub_type',
-            'longitude': 'longitude',
-            'latitude': 'latitude',
-            'crs': 'station_crs'
-        },
-        'StationConfigurationLookupFields': {
-            'region': 'region',
-            'sub_region': 'operating_territory',
-            'primary_station_id_scheme': 'primary_station_id_scheme',
-            'location_accuracy': 'location_accuracy',
-            'location_method': 'location_method',
-            'location_quality': 'location_quality',
-            'height_of_station_above_local_ground': 'height_of_station_above_local_ground',
-            'height_of_station_above_sea_level': 'height_of_station_above_sea_level',
-            'height_of_station_above_sea_level_accuracy': 'height_of_station_above_sea_level_accuracy',
-            'sea_level_datum': 'sea_level_datum'
-        }
-    }
+    vlookups = [
+        ForeignKeyLookup('primary_station_id', StationConfiguration, 'primary_id',
+            extra_fields = {
+                'station_name': 'station_name',
+                'station_type': 'station_type',
+                'platform_type': 'platform_type',
+                'platform_sub_type': 'platform_sub_type',
+                'longitude': 'longitude',
+                'latitude': 'latitude',
+                'sub_region': 'operating_territory',
+                'crs': 'station_crs'
+            }
+        ),
+        LinkedLookup('primary_station_id', StationConfigurationLookupFields,
+            {'primary_id': 'primary_id', 'record_number': 'record_number'},
+            extra_fields = {
+                'region': 'region',
+                'primary_station_id_scheme': 'primary_station_id_scheme',
+                'location_accuracy': 'location_accuracy',
+                'location_method': 'location_method',
+                'location_quality': 'location_quality',
+                'height_of_station_above_local_ground': 'height_of_station_above_local_ground',
+                'height_of_station_above_sea_level': 'height_of_station_above_sea_level',
+                'height_of_station_above_sea_level_accuracy': 'height_of_station_above_sea_level_accuracy',
+                'sea_level_datum': 'sea_level_datum'
+            }
+        ),
+        ForeignKeyLookup('region', Region, 'region'),
+        ForeignKeyLookup('primary_station_id_scheme', IdScheme, 'scheme'),
+        ForeignKeyLookup('location_method', LocationMethod, 'method'),
+        ForeignKeyLookup('location_quality', LocationQuality, 'quality'),
+        ForeignKeyLookup('sea_level_datum', SeaLevelDatum, 'datum'),
+    ]
 
     fields = OD([
         ('report_id', str),
-#        ('region', str),
-#        ('sub_region', str),
         ('application_area', list_of_ints),
         ('observing_programme', list_of_ints),
         ('report_type', int_or_empty),
-#        ('station_name', str),
-#        ('station_type', str),
-#        ('platform_type', str),
-#        ('platform_sub_type', str),
         ('primary_station_id', str),
         ('station_record_number', int_or_empty),
-#        ('primary_station_id_scheme', str),
-#        ('longitude', str),
-#        ('latitude', str),
-#        ('location_accuracy', str),
-#        ('location_method', str),
-#        ('location_quality', str),
-#        ('crs', str),
-        #('station_speed', float_or_empty),
-        #('station_course', float_or_empty),
-        #('station_heading', float_or_empty),
-#        ('height_of_station_above_local_ground', str),
-#        ('height_of_station_above_sea_level', str),
-#        ('height_of_station_above_sea_level_accuracy', str),
-#        ('sea_level_datum', str),
         ('report_meaning_of_timestamp', int_or_empty),
         ('report_timestamp', timestamp_or_empty),
         ('report_duration', int_or_empty),
@@ -78,7 +68,6 @@ class HeaderTableParserRules(_ParserRulesBase):
         ('processing_level', int_or_empty),
         ('processing_codes', list_of_ints),
         ('source_id', str),
-#        ('source_record_id', str)
     ])
 
     # Empty fields: excluded fields that should be added in by the parser
@@ -95,9 +84,7 @@ class HeaderTableParserRules(_ParserRulesBase):
     index_field = 'report_id'
 
     code_table_fields = OD([
-        ('report_type', (ReportIdType, 'type', True)),
-        ('primary_station_id', (StationConfiguration, 'primary_id', True)),
-        #('station_record_number', (StationConfiguration, 'record_number', True)),
+        ('report_type', (ReportType, 'type', True)),
         ('report_meaning_of_timestamp', (MeaningOfTimestamp, 'meaning', True)),
         ('report_duration', (Duration, 'duration', True)),
         ('report_time_quality', (TimeQuality, 'quality', True)),

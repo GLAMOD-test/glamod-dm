@@ -59,7 +59,7 @@ def parse_source_station_delivery(location):
 
 @timeit
 def parse_data_delivery(location):
-    logger.info('INFO', 'Beginning parsing of HEADER and OBSERVATIONS TABLE '
+    logger.info('Beginning parsing of HEADER and OBSERVATIONS TABLE '
           'files at: {}'.format(location))
 
     processor = HeaderAndObsTableProcessor(location)

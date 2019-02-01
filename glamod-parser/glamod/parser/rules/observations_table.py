@@ -6,7 +6,7 @@ from glamod.parser.convertors import *
 from glamod.parser.settings import *
 
 
-from ._base import OD, _ParserRulesBase
+from ._base import OD, _ParserRulesBase, ForeignKeyLookup
 from cdmapp.models import MeaningOfTimestamp, Duration, ObservedVariable,\
     ObservationValueSignificance, SecondaryVariable, ZCoordinateType, Units,\
     ObservationCodeTable, ConversionFlag, LocationMethod, ZCoordinateMethod,\
@@ -16,6 +16,15 @@ from cdmapp.models import MeaningOfTimestamp, Duration, ObservedVariable,\
 
 
 class ObservationsTableParserRules(_ParserRulesBase):
+
+    vlookups = [
+        ForeignKeyLookup('report_id', HeaderTable, 'report_id',
+            extra_fields = {
+                'report_type': 'report_type',
+                'station_type': 'station_type',
+            }
+        ),
+    ]
 
     fields = OD([
 
@@ -49,7 +58,7 @@ class ObservationsTableParserRules(_ParserRulesBase):
 #        ('bbox_max_latitude', float_or_empty),
 #        ('spatial_representativeness', int_or_empty),
         ('quality_flag', int_or_empty),
-        ('numerical_precision', float),
+        ('numerical_precision', float_or_empty),
 #        ('sensor', int_or_empty),
 #        ('sensor_automation_status', int_or_empty),
 #        ('exposure_of_sensor', int_or_empty),

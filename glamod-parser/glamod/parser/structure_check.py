@@ -113,8 +113,8 @@ class SourceAndStationConfigStructureCheck(_StructureCheck):
 class HeaderAndObservationsTablesStructureCheck(_StructureCheck):
 
     _EXPECTED_DIRS = [
-        'header_table/monthly',
-        'observations_table/monthly',
+        'header_table',
+        'observations_table',
     ]
     _EXPECTED_FILES = [
         'header_table_.*\.psv',
