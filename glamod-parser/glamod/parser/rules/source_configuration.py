@@ -5,10 +5,22 @@ Rules for source_configuration files.
 from glamod.parser.convertors import *
 from glamod.parser.settings import *
 
-from ._base import OD, _ParserRulesBase
+from ._base import OD, _ParserRulesBase, ForeignKeyLookup, OneToManyLookup
 
 
 class SourceConfigurationParserRules(_ParserRulesBase):
+    
+    vlookups = [
+        ForeignKeyLookup('product_level', ProductLevel, 'description'),
+        ForeignKeyLookup('product_status', ProductStatus, 'description'),
+        ForeignKeyLookup('source_format', SourceFormat, 'format'),
+        ForeignKeyLookup('data_centre', Organisation, 'organisation_id'),
+        ForeignKeyLookup('data_policy_licence', DataPolicyLicence, 'policy'),
+        OneToManyLookup('contact', Contact, 'contact_id'),
+        OneToManyLookup('contact_role', Role, 'role'),
+        ForeignKeyLookup('maintenance_and_update_frequency', UpdateFrequency, 'frequency'),
+        ForeignKeyLookup('optional_data', DataPresent, 'flag'),
+    ]
     
     fields = OD([
         ('source_id', str),
@@ -46,22 +58,4 @@ class SourceConfigurationParserRules(_ParserRulesBase):
 
     index_field = 'source_id'
 
-
-    code_table_fields = OD([
-        ('product_level', (ProductLevel, 'description', False)),
-        ('product_status', (ProductStatus, 'description', False)),
-        ('source_format', (SourceFormat, 'format', True)),
-        ('data_centre', (Organisation, 'organisation_id', True)),
-        ('data_policy_licence', (DataPolicyLicence, 'description', False)),
-        ('contact', (Contact, 'contact_id', True)),
-        ('contact_role', (Role, 'role', True)),
-        ('maintenance_and_update_frequency', (UpdateFrequency, 'frequency', True)),
-        ('optional_data', (DataPresent, 'flag', True))
-    ])
-
-    # Structure of foreign key mappings:
-    #   {<field_name>: (<app_model>, <field_to_write_to>, <is_primary_key>[BOOL])}
-    # foreign_key_fields_to_add = OD([])
-    # NOTE: This "foreign_key_fields_to_add" property is created in the base class
-    #       as a reference to "code_table_fields". However, we might need them to be
-    #       separate so the code treats them as separate.
+    code_table_fields = OD([])
