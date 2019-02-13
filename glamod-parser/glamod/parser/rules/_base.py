@@ -3,6 +3,7 @@ import logging
 from glamod.parser.settings import INT_NAN
 from collections import OrderedDict as OD
 from copy import deepcopy
+from django.core.exceptions import ObjectDoesNotExist
 
 
 logger = logging.getLogger(__name__)
@@ -25,13 +26,17 @@ class Lookup(object):
         
         return False
     
+    def get_key(self):
+        
+        return self._key
+    
     def resolve(self, record):
         
         query = self._build_query(record)
         if not query:
             return None
         
-        resolved_object = self._model.objects.get(**query)
+        resolved_object = self._resolve_object(query)
         
         resolved = {}
         resolved[self._key] = resolved_object
@@ -43,6 +48,17 @@ class Lookup(object):
                     resolved[record_field] = extra_value
         
         return resolved
+    
+    def _resolve_object(self, query):
+        
+        try:
+            return self._model.objects.get(**query)
+        except ObjectDoesNotExist as e:
+            logger.error((
+                f"Referenced {self._model} object not found for field"
+                f" '{self._key}'. The query was: {query}"
+            ))
+            raise e
 
 
 class ForeignKeyLookup(Lookup):
@@ -52,16 +68,29 @@ class ForeignKeyLookup(Lookup):
         super().__init__(key, model, extra_fields=extra_fields)
         self._lookup_key = lookup_key
     
-    def get_key(self):
-        
-        return self._key
-    
     def _build_query(self, record):
         
         if self._key in record:
             lookup_value = record[self._key]
             if not self._is_null(lookup_value):
                 return { self._lookup_key: lookup_value }
+
+
+class OneToManyLookup(ForeignKeyLookup):
+    
+    def resolve(self, record):
+        
+        lookup_values = record.get(self._key)
+        if not lookup_values:
+            return []
+        
+        resolved_objects = []
+        for value in lookup_values:
+            query = { self._lookup_key: value }
+            resolved_object = self._resolve_object(query)
+            resolved_objects.append(getattr(resolved_object, self._lookup_key))
+        
+        return { self._key: resolved_objects }
 
 
 class LinkedLookup(Lookup):
