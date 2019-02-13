@@ -11,8 +11,8 @@ from glamod.parser.chunk_manager import ChunkManager
 from glamod.parser.exceptions import ParserError
 
 from glamod.parser.rules import (SourceConfigurationParserRules,
-    StationConfigurationParserRules, HeaderTableParserRules,
-    ObservationsTableParserRules)
+    StationConfigurationParserRules, StationConfigurationOptionalParserRules,
+    HeaderTableParserRules, ObservationsTableParserRules)
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -242,6 +242,11 @@ class StationConfigurationDBWriter(_DBWriterBase):
 
         return main_record, deliveries_record
 
+
+class StationConfigurationOptionalDBWriter(_DBWriterBase):
+
+    app_model = StationConfigurationOptional
+    rules = StationConfigurationOptionalParserRules()
 
 
 class HeaderTableDBWriter(_DBWriterBase):

@@ -13,7 +13,12 @@ def prestrip(func):
         return func(*args, **kwargs)
 
     return _wrapped_strip
-        
+
+
+@prestrip
+def str_strip(value):
+    return str(value)
+
 
 def _x_or_empty(value, conv_func, default=INT_NAN):
     if value == '':

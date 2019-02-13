@@ -10,8 +10,8 @@ from .utils import timeit, map_file_type
 from .structure_check import (SourceAndStationConfigStructureCheck,
     HeaderAndObservationsTablesStructureCheck)
 from .logic_check import (SourceConfigurationLogicCheck,
-    StationConfigurationLogicCheck, HeaderTableLogicCheck,
-    ObservationsTableLogicCheck)
+    StationConfigurationLogicCheck, StationConfigurationOptionalLogicCheck,
+    HeaderTableLogicCheck, ObservationsTableLogicCheck)
 
 
 logger = logging.getLogger(__name__)
@@ -69,10 +69,11 @@ class _DeliveryProcessorBase(object):
             logger.info(f'Logic checks for files of type: {ftype}')
 
             chunks = self.chunk_dict[ftype]
-            logic_check_class = self._get_logic_check(chunks[0])
-
-            logic_checker = logic_check_class(chunks)
-            logic_checker.run()
+            if chunks:
+                logic_check_class = self._get_logic_check(chunks[0])
+    
+                logic_checker = logic_check_class(chunks)
+                logic_checker.run()
 
     @timeit
     def _write_to_db(self):
@@ -112,9 +113,17 @@ class _DeliveryProcessorBase(object):
 
 class SourceAndStationConfigProcessor(_DeliveryProcessorBase):
 
-    FILE_TYPES = ['SourceConfiguration', 'StationConfiguration']
+    FILE_TYPES = [
+        'SourceConfiguration',
+        'StationConfiguration',
+        'StationConfigurationOptional'
+    ]
     STRUCTURE_CHECKS = [SourceAndStationConfigStructureCheck]
-    LOGIC_CHECKS = [SourceConfigurationLogicCheck, StationConfigurationLogicCheck]
+    LOGIC_CHECKS = [
+        SourceConfigurationLogicCheck,
+        StationConfigurationLogicCheck,
+        StationConfigurationOptionalLogicCheck
+    ]
 
     @timeit
     def _write_to_db(self):
@@ -123,10 +132,11 @@ class SourceAndStationConfigProcessor(_DeliveryProcessorBase):
             logger.info(f'Writing data to DB for files of type: {ftype}')
 
             chunks = self.chunk_dict[ftype]
-            db_writer_class = self._get_db_writer(chunks[0])
-
-            db_writer = db_writer_class(chunks)
-            db_writer.write_to_db()
+            if chunks:
+                db_writer_class = self._get_db_writer(chunks[0])
+    
+                db_writer = db_writer_class(chunks)
+                db_writer.write_to_db()
 
 
 

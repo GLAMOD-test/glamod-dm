@@ -99,10 +99,12 @@ class SourceAndStationConfigStructureCheck(_StructureCheck):
     _EXPECTED_DIRS = [
         'source_configuration',
         'station_configuration',
+        'station_configuration_optional',
     ]
     _EXPECTED_FILES = [
         'source_configuration_({}+)\.psv'.format(REGEX_SAFE),
         'station_configuration_({}+)\.psv'.format(REGEX_SAFE),
+        'station_configuration_optional_({}+)\.psv'.format(REGEX_SAFE),
     ]
 
 

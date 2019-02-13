@@ -54,6 +54,13 @@ class StationConfigurationLogicCheck(_LogicCheckBase):
         logger.info('Completed Logic Checks for: {}'.format(self.ftype))
 
 
+class StationConfigurationOptionalLogicCheck(_LogicCheckBase):
+
+    @timeit
+    def run(self):
+        pass
+
+
 class HeaderTableLogicCheck(_LogicCheckBase):
 
     @timeit

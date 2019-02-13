@@ -83,6 +83,7 @@ def map_file_type(lookup, reverse=False):
 
     _map = {
         'source_configuration': 'SourceConfiguration',
+        'station_configuration_optional': 'StationConfigurationOptional',
         'station_configuration': 'StationConfiguration',
         'header_table': 'HeaderTable', 
         'observations_table': 'ObservationsTable'}

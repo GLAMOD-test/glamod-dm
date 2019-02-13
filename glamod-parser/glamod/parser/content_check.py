@@ -15,6 +15,7 @@ from glamod.parser.utils import db_model_to_field
 from glamod.parser.file_parser import FileParser
 from glamod.parser.rules import (
      SourceConfigurationParserRules, StationConfigurationParserRules,
+     StationConfigurationOptionalParserRules,
      HeaderTableParserRules, ObservationsTableParserRules)
 
 
@@ -146,6 +147,15 @@ class StationConfigurationContentCheck(_ContentCheck):
 
     def run(self):
         super(StationConfigurationContentCheck, self).run()
+        logger.info('Completed {} on: {}'.format(self._cls, self.fpath))
+
+
+class StationConfigurationOptionalContentCheck(_ContentCheck):
+
+    _rules = StationConfigurationOptionalParserRules()
+
+    def run(self):
+        super(StationConfigurationOptionalContentCheck, self).run()
         logger.info('Completed {} on: {}'.format(self._cls, self.fpath))
 
 
