@@ -58,23 +58,26 @@ class _ContentCheck(object):
 
 
     def _run_batch_lookups_of_code_tables(self):
-        _fields = self._rules.expected_fields
+        # TODO: Refactor
+        pass
+        
+        #_fields = self._rules.expected_fields
 
-        index_field = self._rules.index_field
-        code_table_fields_dct = self._rules.code_table_fields
+        #index_field = self._rules.index_field
+        #code_table_fields_dct = self._rules.code_table_fields
 
-        columns = [index_field] + [_key for _key in code_table_fields_dct.keys()]
+        #columns = [index_field] + [_key for _key in code_table_fields_dct.keys()]
 
         # Cache a DataFrame with all required columns
-        df = self._parser.get_subset_dataframe(convertors=_fields, columns=columns)
+        #df = self._parser.get_subset_dataframe(convertors=_fields, columns=columns)
 
-        for lookup_col, _model_details in code_table_fields_dct.items():
+        #for lookup_col, _model_details in code_table_fields_dct.items():
 
-            _model = _model_details[0]
-            logger.info('Checking column "{}" in: {}'.format(lookup_col, self.fpath))
-            self._check_lookups_exist_in_code_table(df[lookup_col], df[index_field],
-                                                    _model)
-        
+        #    _model = _model_details[0]
+        #    logger.info('Checking column "{}" in: {}'.format(lookup_col, self.fpath))
+        #    self._check_lookups_exist_in_code_table(df[lookup_col], df[index_field],
+        #                                            _model)
+
 
     def _check_lookups_exist_in_code_table(self, values, indexes, model):
         assert(len(values) == len(indexes))

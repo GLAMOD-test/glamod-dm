@@ -10,6 +10,9 @@ complex validation when a data type is created from a value.
 import re
 
 
+__all__ = ['LatitudeType', 'LongitudeType']
+
+
 class _ComplexType(object):
 
     def __call__(self, value):

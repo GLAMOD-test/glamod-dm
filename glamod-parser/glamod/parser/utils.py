@@ -12,9 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from glamod.parser.exceptions import ParserError
-
-# Following settings import includes all Django Models
-from glamod.parser.settings import *
+from glamod.parser.settings import INT_NAN, INPUT_ENCODING, DB_MAPPINGS
 
 
 def timeit(method):
@@ -28,6 +26,15 @@ def timeit(method):
         logger.info('TIMED FUNCTION: "{}" ran in: {:.5f} seconds'.format(method_name, (te - ts)))
         return result
     return timed
+
+
+def is_null(value):
+    
+    if value is None: return True
+    if value == INT_NAN: return True
+    if isinstance(value, str) and not value: return True
+    
+    return False
 
 
 def unzip(location, target_dir):

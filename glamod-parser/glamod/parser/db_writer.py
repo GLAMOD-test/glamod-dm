@@ -1,19 +1,20 @@
 import copy
 import logging
+
 from collections import OrderedDict as OD
-
 from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
+from cdmapp.models import SourceConfiguration, StationConfiguration, \
+    StationConfigurationOptional, HeaderTable, ObservationsTable
 
-
-from glamod.parser.settings import *
-from glamod.parser.utils import timeit
+from glamod.parser.utils import timeit, is_null
 from glamod.parser.chunk_manager import ChunkManager
 from glamod.parser.exceptions import ParserError
-
 from glamod.parser.rules import (SourceConfigurationParserRules,
     StationConfigurationParserRules, StationConfigurationOptionalParserRules,
     HeaderTableParserRules, ObservationsTableParserRules)
-from django.core.exceptions import ObjectDoesNotExist
+from glamod.parser.deliveries_app.models import \
+    StationConfigurationLookupFields
 
 
 logger = logging.getLogger(__name__)
@@ -102,55 +103,20 @@ class _DBWriterBase(object):
         
         if logger.isEnabledFor(logging.DEBUG):
             for key in sorted(record.keys()): logger.debug('IN REC: {}: {}'.format(key, record[key]))
-            for key in sorted(self.rules.foreign_key_fields_to_add.keys()):
-                logger.debug('NEEDED AS FK: {}: {}'.format(key, record[key]))
         
-        for lookup in self.rules.vlookups:
-            lookup_data = lookup.resolve(record)
-            if lookup_data:
-                record.update(lookup_data)
+        for lookup in self.rules.lookups:
+            
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug(f'NEEDED AS FK: {lookup.get_key()}: '
+                    '{record[lookup.get_key()]}')
+            
+            resolved = lookup.resolve(record)
+            if resolved:
+                record.update(resolved)
             else:
                 if lookup.get_key() in record:
                     del record[lookup.get_key()]
         
-        for fk_field, (fk_model, fk_arg, is_primary_key) in self.rules.foreign_key_fields_to_add.items():
-            
-            value = record[fk_field]
-            
-            if isinstance(value, str) and not value and is_primary_key:
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(f'Ignoring empty string foreign key: {fk_field}')
-                del record[fk_field]
-                continue
-    
-            if value == INT_NAN and is_primary_key:
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug(f'Ignoring NAN field for: {fk_field}')
-                del record[fk_field]
-                continue
-    
-            if logger.isEnabledFor(logging.DEBUG):
-                logger.debug('Could CHANGE MODEL TO USE `models.AutoField()` but not tampering (yet)!')
-    
-            # Since some are lists we need to manage them differently
-            if type(value) == list:
-    
-                for item in value:
-                    kwargs = self._get_fk_kwargs(fk_model, item, fk_arg, is_primary_key)
-                    self._get(fk_model, kwargs)
-    
-                # Don't set the FK field here as already set as: value
-    
-            else:
-                kwargs = self._get_fk_kwargs(fk_model, value, fk_arg, is_primary_key)
-                fk_obj = self._get(fk_model, kwargs)
-    
-                # Now work out whether to set the FK object as the value or to just keep
-                # the simple field. Have to do this if using the secondary database for extra
-                # fields
-                if fk_field not in self.rules.extended_fields.keys():
-                    record[fk_field] = fk_obj
-
         return record
 
 
@@ -235,7 +201,8 @@ class StationConfigurationDBWriter(_DBWriterBase):
 
         for key in keys:
             if key in self.rules.extended_fields.keys() or key in in_both_records:
-                deliveries_record[key] = main_record[key]
+                if not is_null(main_record[key]):
+                    deliveries_record[key] = main_record[key]
 
                 if key not in in_both_records:
                     del main_record[key]

@@ -2,16 +2,23 @@
 Rules for header_table files.
 """
 
-from glamod.parser.convertors import *
-from glamod.parser.settings import *
+from glamod.parser.convertors import list_of_ints, list_of_strs, \
+    int_or_empty, float_or_empty, timestamp_or_empty
+from cdmapp.models import StationConfiguration, Region, IdScheme, ReportType, \
+    MeaningOfTimestamp, Duration, TimeQuality, TimeReference, SeaLevelDatum, \
+    LocationMethod, LocationQuality, ProfileConfiguration, EventsAtStation, \
+    QualityFlag, DuplicateStatus, ReportProcessingLevel, \
+    ReportProcessingCodes, SourceConfiguration
+from glamod.parser.deliveries_app.models import \
+    StationConfigurationLookupFields
 
-
-from ._base import OD, _ParserRulesBase, ForeignKeyLookup, LinkedLookup
+from ._base import OD, _ParserRulesBase, ForeignKeyLookup, LinkedLookup, \
+    OneToManyLookup
 
 
 class HeaderTableParserRules(_ParserRulesBase):
 
-    vlookups = [
+    lookups = [
         ForeignKeyLookup('primary_station_id', StationConfiguration, 'primary_id',
             extra_fields = {
                 'station_name': 'station_name',
@@ -24,25 +31,40 @@ class HeaderTableParserRules(_ParserRulesBase):
                 'crs': 'station_crs'
             }
         ),
-        LinkedLookup('primary_station_id', StationConfigurationLookupFields,
-            {'primary_id': 'primary_id', 'record_number': 'record_number'},
-            extra_fields = {
-                'region': 'region',
-                'primary_station_id_scheme': 'primary_station_id_scheme',
-                'location_accuracy': 'location_accuracy',
-                'location_method': 'location_method',
-                'location_quality': 'location_quality',
-                'height_of_station_above_local_ground': 'height_of_station_above_local_ground',
-                'height_of_station_above_sea_level': 'height_of_station_above_sea_level',
-                'height_of_station_above_sea_level_accuracy': 'height_of_station_above_sea_level_accuracy',
-                'sea_level_datum': 'sea_level_datum'
-            }
+        LinkedLookup('primary_station_id',
+            ForeignKeyLookup(
+                'primary_id', StationConfigurationLookupFields, 'primary_id',
+                query_map = { 'record_number': 'record_number' },
+                extra_fields = {
+                    'region': 'region',
+                    'primary_station_id_scheme': 'primary_station_id_scheme',
+                    'location_accuracy': 'location_accuracy',
+                    'location_method': 'location_method',
+                    'location_quality': 'location_quality',
+                    'height_of_station_above_local_ground': 'height_of_station_above_local_ground',
+                    'height_of_station_above_sea_level': 'height_of_station_above_sea_level',
+                    'height_of_station_above_sea_level_accuracy': 'height_of_station_above_sea_level_accuracy',
+                    'sea_level_datum': 'sea_level_datum'
+                }
+            )
         ),
         ForeignKeyLookup('region', Region, 'region'),
         ForeignKeyLookup('primary_station_id_scheme', IdScheme, 'scheme'),
         ForeignKeyLookup('location_method', LocationMethod, 'method'),
         ForeignKeyLookup('location_quality', LocationQuality, 'quality'),
         ForeignKeyLookup('sea_level_datum', SeaLevelDatum, 'datum'),
+        ForeignKeyLookup('report_type', ReportType, 'type'),
+        ForeignKeyLookup('report_meaning_of_timestamp', MeaningOfTimestamp, 'meaning'),
+        ForeignKeyLookup('report_duration', Duration, 'duration'),
+        ForeignKeyLookup('report_time_quality', TimeQuality, 'quality'),
+        ForeignKeyLookup('report_time_reference', TimeReference, 'reference'),
+        ForeignKeyLookup('profile_id', ProfileConfiguration, 'profile_id'),
+        OneToManyLookup('events_at_station', EventsAtStation, 'event'),
+        ForeignKeyLookup('report_quality', QualityFlag, 'flag'),
+        ForeignKeyLookup('duplicate_status', DuplicateStatus, 'status'),
+        ForeignKeyLookup('processing_level', ReportProcessingLevel, 'level'),
+        OneToManyLookup('processing_codes', ReportProcessingCodes, 'code'),
+        ForeignKeyLookup('source_id', SourceConfiguration, 'source_id'),
     ]
 
     fields = OD([
@@ -82,27 +104,3 @@ class HeaderTableParserRules(_ParserRulesBase):
     ])
 
     index_field = 'report_id'
-
-    code_table_fields = OD([
-        ('report_type', (ReportType, 'type', True)),
-        ('report_meaning_of_timestamp', (MeaningOfTimestamp, 'meaning', True)),
-        ('report_duration', (Duration, 'duration', True)),
-        ('report_time_quality', (TimeQuality, 'quality', True)),
-        ('report_time_reference', (TimeReference, 'reference', True)),
-        ('profile_id', (ProfileConfiguration, 'profile_id', True)),
-        ('events_at_station', (EventsAtStation, 'event', True)),
-        ('report_quality', (QualityFlag, 'flag', True)),
-        ('duplicate_status', (DuplicateStatus, 'status', True)),
-        ('processing_level', (ReportProcessingLevel, 'level', True)),
-        ('processing_codes', (ReportProcessingCodes, 'code', True)),
-        ('source_id', (SourceConfiguration, 'source_id', True)),
-    ])
-
-
-
-    # Structure of foreign key mappings:
-    #   {<field_name>: (<app_model>, <field_to_write_to>, <is_primary_key>[BOOL])}
-    # foreign_key_fields_to_add = OD([])
-    # NOTE: This "foreign_key_fields_to_add" property is created in the base class
-    #       as a reference to "code_table_fields". However, we might need them to be
-    #       separate so the code treats them as separate.
