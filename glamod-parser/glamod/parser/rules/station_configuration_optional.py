@@ -27,5 +27,3 @@ class StationConfigurationOptionalParserRules(_ParserRulesBase):
     ])
 
     index_field = 'station_primary_id'
-
-    code_table_fields = OD([])

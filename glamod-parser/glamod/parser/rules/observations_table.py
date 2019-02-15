@@ -63,8 +63,4 @@ class ObservationsTableParserRules(_ParserRulesBase):
         ('source_id', str),
     ])
 
-
     index_field = 'observation_id'
-
-    code_table_fields = OD([
-    ])

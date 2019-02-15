@@ -60,5 +60,3 @@ class SourceConfigurationParserRules(_ParserRulesBase):
     ])
 
     index_field = 'source_id'
-
-    code_table_fields = OD([])

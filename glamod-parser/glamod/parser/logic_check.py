@@ -37,11 +37,6 @@ class SourceConfigurationLogicCheck(_LogicCheckBase):
             raise Exception('TOO MANY RECORDS!!!')
 
         logger.info('Completed Logic Checks for: {}'.format(self.ftype))
-        while 1:
-            try:
-                self.cm.get_next_chunk()
-            except IOError:
-                break
 
 
 class StationConfigurationLogicCheck(_LogicCheckBase):

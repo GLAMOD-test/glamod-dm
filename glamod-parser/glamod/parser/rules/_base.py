@@ -85,6 +85,9 @@ class Lookup(object):
                 f" '{self._key}'. The query was: {query}"
             ))
             raise e
+    
+    def __str__(self):
+        return f"Lookup for field: {self._key}"
 
 
 class ForeignKeyLookup(Lookup):

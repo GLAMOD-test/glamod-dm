@@ -9,6 +9,7 @@ from cdmapp.models import IdScheme, SubRegion, Crs, \
     ObservingFrequency, ObservedVariable, DataPresent, \
     CommunicationMethod, AutomationStatus
 
+from glamod.parser.deliveries_app.models import StationConfigurationLookupFields
 from ._base import OD, _ParserRulesBase, ForeignKeyLookup, OneToManyLookup
 
 
@@ -81,6 +82,7 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('metadata_contact_role', list_of_ints),
     ])
 
+    extended_field_model = StationConfigurationLookupFields
 
     # Extended fields (not defined in table schema)
     #  - to be saved to the 'deliveries' DB for later lookups
