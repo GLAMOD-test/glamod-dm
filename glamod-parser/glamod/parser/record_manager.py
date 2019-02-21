@@ -7,7 +7,9 @@ Created on Feb 15, 2019
 import logging
 import copy
 
-from glamod.parser.utils import is_null
+from pandas.core.frame import DataFrame
+
+from glamod.parser.utils import is_null, to_dict_dropna
 
 
 logger = logging.getLogger(__name__)
@@ -16,31 +18,58 @@ logger = logging.getLogger(__name__)
 class RecordManager:
     """ Parses CDM records from chunked data-frame collections. """
     
-    def __init__(self, chunked_df, app_model, rules):
+    def __init__(self, app_model, rules):
         
-        self._records = chunked_df.to_dict('records')
         self._app_model = app_model
         self._rules = rules
     
-    def resolve_records(self):
-        """ Resolves Django model objects from a collection of chunked records.
+    def create_records(self, record_data_frame):
+        """ Resolves Django model objects from a data frame of records.
         
         :return: A generator of unsaved records.
         """
         
-        for _, record in enumerate(self._records):
-            yield self._create_record(record)
+        records = to_dict_dropna(record_data_frame)
+        for field_values in records:
+            
+            try:
+                record_object = self._app_model(**field_values)
+            except Exception as err:
+                logger.error(str(field_values))
+                raise Exception(err)
+            
+            yield record_object
     
-    def _create_record(self, record_data):
+    def resolve_data_frame(self, record_data_frame):
+        """ Resolves the records in a data frame.
+        
+        :return: A DataFrame object containing resolved record data.
+        """
+        
+        initial_columns = list(record_data_frame.columns.values)
+        records = record_data_frame.to_dict('records')
+        resolved_records = DataFrame()
+        for record in records:
+            
+            resolved_record = self._resolve_missing_values(
+                record, replace_references=False)
+            resolved_records = resolved_records.append(
+                resolved_record, ignore_index=True
+            )
+        
+        resolved_columns = list(resolved_records.columns.values)
+        return resolved_records
+    
+    def _resolve_missing_values(self, record_data, replace_references=True):
         """ Creates a new record from a dictionary of potential field values.
         
         :param record_data: dictionary of model field names and values
-        :return: An instance of a Django CDM model.
         """
         
         # Remove non-field keys in record dictionary
         field_values = copy.deepcopy(record_data)
-        field_values = self._resolve_related_records(field_values)
+        field_values = self._resolve_related_records(
+            field_values, replace_references=replace_references)
         
         # Separate and save extended fields if any are found.
         field_values, extended_field_values = \
@@ -48,15 +77,9 @@ class RecordManager:
         if extended_field_values:
             self._save_extended_fields(extended_field_values)
         
-        try:
-            record_object = self._app_model(**field_values)
-        except Exception as err:
-            logger.error(str(field_values))
-            raise Exception(err)
-        
-        return record_object
+        return field_values
     
-    def _resolve_related_records(self, field_values):
+    def _resolve_related_records(self, field_values, replace_references=True):
         """ Resolves foreign-key relationships according to custom rules.
         
         :param field_values: dictionary of model field names and values
@@ -67,12 +90,17 @@ class RecordManager:
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug(f"Resolving: {lookup}")
             
-            resolved = lookup.resolve(field_values)
-            if resolved:
-                field_values.update(resolved)
+            resolved_object, extra_values = lookup.resolve(field_values)
+            
+            if replace_references:
+                field_values[lookup.get_original_key()] = resolved_object
             else:
-                if lookup.get_key() in field_values:
-                    del field_values[lookup.get_key()]
+                id_field = lookup.get_id_key()
+                field_values[id_field] = field_values.pop(
+                    lookup.get_original_key())
+            
+            if extra_values:
+                field_values.update(extra_values)
         
         return field_values
     

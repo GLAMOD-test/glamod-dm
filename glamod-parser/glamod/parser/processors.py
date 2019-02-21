@@ -1,37 +1,43 @@
 import os
 import logging
-from collections import OrderedDict as OD
-from importlib import import_module
-
 import stringcase
 
-from .utils import timeit, map_file_type
+from importlib import import_module
+from cdmapp.models import SourceConfiguration, StationConfiguration, \
+    StationConfigurationOptional, HeaderTable, ObservationsTable
 
-from .structure_check import (SourceAndStationConfigStructureCheck,
-    HeaderAndObservationsTablesStructureCheck)
-from .logic_check import (SourceConfigurationLogicCheck,
-    StationConfigurationLogicCheck, StationConfigurationOptionalLogicCheck,
-    HeaderTableLogicCheck, ObservationsTableLogicCheck)
+from .settings import CHUNK_CACHE_DIR, CHUNK_CACHE_DIR_DEPTH
+from .chunk_manager import ChunkManager
+from .record_manager import RecordManager
+from .utils import get_path_sub_dirs, timeit
+from .db_writer import DBWriter
+from .rules import (SourceConfigurationParserRules,
+     StationConfigurationParserRules, StationConfigurationOptionalParserRules,
+     HeaderTableParserRules, ObservationsTableParserRules)
 
 
 logger = logging.getLogger(__name__)
 
 
-class _DeliveryProcessorBase(object):
-
-    CHECKS = OD()
-    FILE_TYPES = []
-
+class _DeliveryProcessorBase:
+    
     def __init__(self, location):
+        
         self.location = location
-        self.data_files = {}
-        self.chunk_dict = {}
-
-        self.file_types = self.CHECKS.keys()
-
-        for ftype in self.FILE_TYPES:
-            self.data_files[ftype] = []
-            self.chunk_dict[ftype] = []
+        self.model_name = self._app_model.__name__
+        
+        data_dirs = get_path_sub_dirs(location, depth=CHUNK_CACHE_DIR_DEPTH)
+        pickle_directory = os.path.join(CHUNK_CACHE_DIR, data_dirs)
+        
+        structure_check_class = self._get_check_by_name('StructureCheck')
+        self._structure_check = structure_check_class(location)
+        
+        self._content_check_class = self._get_check_by_name('ContentCheck')
+        self._logic_check_class = self._get_check_by_name('LogicCheck')
+        
+        self._chunk_manager = ChunkManager(pickle_directory)
+        self._record_manager = RecordManager(self._app_model, self._rules)
+        self._db_writer = DBWriter(self._record_manager)
 
     def run(self):
         self._run_structure_checks()
@@ -41,124 +47,63 @@ class _DeliveryProcessorBase(object):
 
     @timeit
     def _run_structure_checks(self):
-        for structure_check in self.STRUCTURE_CHECKS:
-
-            s_check = structure_check(self.location)
-            s_check.run()
-
-            self._store_file_paths(s_check.get_files())
+        
+        logger.info(f'Structure checks for files of type: {self.model_name}')
+        self._structure_check.run()
+        self._data_files = self._structure_check.get_files()
 
     @timeit
     def _run_content_checks(self):
 
-        for ftype in self.FILE_TYPES:
-            logger.info(f'Content checks for files of type: {ftype}')
-
-            for fpath in self.data_files[ftype]:
-
-                content_check = self._get_content_check(fpath)
-                content_check.run()
-
-                chunks = content_check.chunks
-                self.chunk_dict[ftype].extend(chunks)
+        logger.info(f'Content checks for files of type: {self.model_name}')
+        for file_path in self._data_files:
+            content_check = self._content_check_class(
+                file_path, self._chunk_manager, self._record_manager)
+            content_check.run()
 
     @timeit
     def _run_logic_checks(self):
-
-        for ftype in self.FILE_TYPES:
-            logger.info(f'Logic checks for files of type: {ftype}')
-
-            chunks = self.chunk_dict[ftype]
-            if chunks:
-                logic_check_class = self._get_logic_check(chunks[0])
-    
-                logic_checker = logic_check_class(chunks)
-                logic_checker.run()
-
-    @timeit
-    def _write_to_db(self):
-        raise NotImplementedError
-
-    def _store_file_paths(self, fpaths):
-        for fpath in fpaths:
-
-            ftype = self._get_key(fpath)
-            self.data_files[ftype].append(fpath)
-
-    def _get_key(self, path_or_cls):
-        if type(path_or_cls) != str:
-            path_or_cls = path_or_cls.__name__
-
-        return map_file_type(path_or_cls)
-
-    def _get_check_by_path(self, fpath, check_type, mod_name=None):
-        class_name = map_file_type(fpath) + check_type
-
-        if not mod_name:
-            mod_name = stringcase.snakecase(check_type)
-
-        mod = import_module('.' + mod_name, package='glamod.parser')
-        return getattr(mod, class_name)
-
-    def _get_content_check(self, fpath):
-        return self._get_check_by_path(fpath, 'ContentCheck')(fpath)
-
-    def _get_logic_check(self, chunk_path):
-        return self._get_check_by_path(chunk_path, 'LogicCheck')
-
-    def _get_db_writer(self, chunk_path):
-        return self._get_check_by_path(chunk_path, 'DBWriter', mod_name='db_writer')
-
-
-
-class SourceAndStationConfigProcessor(_DeliveryProcessorBase):
-
-    FILE_TYPES = [
-        'SourceConfiguration',
-        'StationConfiguration',
-        'StationConfigurationOptional'
-    ]
-    STRUCTURE_CHECKS = [SourceAndStationConfigStructureCheck]
-    LOGIC_CHECKS = [
-        SourceConfigurationLogicCheck,
-        StationConfigurationLogicCheck,
-        StationConfigurationOptionalLogicCheck
-    ]
-
-    @timeit
-    def _write_to_db(self):
-
-        for ftype in self.FILE_TYPES:
-            logger.info(f'Writing data to DB for files of type: {ftype}')
-
-            chunks = self.chunk_dict[ftype]
-            if chunks:
-                db_writer_class = self._get_db_writer(chunks[0])
-    
-                db_writer = db_writer_class(chunks)
-                db_writer.write_to_db()
-
-
-
-class HeaderAndObsTableProcessor(_DeliveryProcessorBase):
-
-    FILE_TYPES = ['HeaderTable', 'ObservationsTable']
-    STRUCTURE_CHECKS = [HeaderAndObservationsTablesStructureCheck]
-    LOGIC_CHECKS = [HeaderTableLogicCheck, ObservationsTableLogicCheck]
-
-    def _run_content_checks(self):
-        super(HeaderAndObsTableProcessor, self)._run_content_checks()
-
-    @timeit
-    def _write_to_db(self):
-        logger.info('Loading data for Header Table files.')
-        logger.info('Loading data for Observation Table files.')
         
-        for ftype in self.FILE_TYPES:
-            logger.info(f'Writing data to DB for files of type: {ftype}')
+        logger.info(f'Logic checks for files of type: {self.model_name}')
+        logic_check = self._logic_check_class(self._chunk_manager)
+        logic_check.run()
 
-            chunks = self.chunk_dict[ftype]
-            db_writer_class = self._get_db_writer(chunks[0])
+    @timeit
+    def _write_to_db(self):
+        
+        logger.info(f'Writing data to DB for files of type: {self.model_name}')
+        chunks = self._chunk_manager.read_cached_chunks()
+        self._db_writer.write_to_db(chunks)
 
-            db_writer = db_writer_class(chunks)
-            db_writer.write_to_db()
+    def _get_check_by_name(self, check_name):
+        class_name = self.model_name + check_name
+        
+        module_name = stringcase.snakecase(check_name)
+        module = import_module('.' + module_name, package='glamod.parser')
+        
+        return getattr(module, class_name)
+
+
+class HeaderTableProcessor(_DeliveryProcessorBase):
+    _app_model = HeaderTable
+    _rules = HeaderTableParserRules
+
+
+class ObservationsTableProcessor(_DeliveryProcessorBase):
+    _app_model = ObservationsTable
+    _rules = ObservationsTableParserRules
+
+
+class SourceConfigurationProcessor(_DeliveryProcessorBase):
+    _app_model = SourceConfiguration
+    _rules = SourceConfigurationParserRules()
+
+
+class StationConfigurationProcessor(_DeliveryProcessorBase):
+    _app_model = StationConfiguration
+    _rules = StationConfigurationParserRules()
+
+
+class StationConfigurationOptionalProcessor(_DeliveryProcessorBase):
+    _app_model = StationConfigurationOptional
+    _rules = StationConfigurationOptionalParserRules()

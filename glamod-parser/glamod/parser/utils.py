@@ -8,11 +8,15 @@ import time
 import os
 import zipfile
 import logging
+import math
 
-logger = logging.getLogger(__name__)
+from pandas import notnull
 
 from glamod.parser.exceptions import ParserError
-from glamod.parser.settings import INT_NAN, INPUT_ENCODING, DB_MAPPINGS
+from glamod.parser.settings import INPUT_ENCODING, DB_MAPPINGS
+
+
+logger = logging.getLogger(__name__)
 
 
 def timeit(method):
@@ -30,11 +34,39 @@ def timeit(method):
 
 def is_null(value):
     
+    # Is None, easy
     if value is None: return True
-    if value == INT_NAN: return True
-    if isinstance(value, str) and not value: return True
+    
+    if not isinstance(value, str):
+        # Not a string, nor a valid number
+        if math.isnan(value): return True
+    
+    # Empty string
+    elif not value: return True
     
     return False
+
+
+def robust_notnull(value):
+    
+    if hasattr(value, 'any'):
+        return notnull(value.any())
+    else:
+        return notnull(value)
+
+
+def to_dict_dropna(data_frame):
+    
+    data = data_frame.to_dict(orient='rows')
+    stripped_data = []
+    for row in data:
+        row_dict = {}
+        for key, value in row.items():
+            if not isinstance(value, list) and notnull(value):
+                row_dict[key] = value
+        stripped_data.append(row_dict)
+    
+    return stripped_data
 
 
 def unzip(location, target_dir):

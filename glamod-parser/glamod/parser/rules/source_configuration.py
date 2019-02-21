@@ -19,8 +19,8 @@ class SourceConfigurationParserRules(_ParserRulesBase):
         ForeignKeyLookup('source_format', SourceFormat, 'format'),
         ForeignKeyLookup('data_centre', Organisation, 'organisation_id'),
         ForeignKeyLookup('data_policy_licence', DataPolicyLicence, 'policy'),
-        OneToManyLookup('contact', Contact, 'contact_id', resolve_basic=True),
-        OneToManyLookup('contact_role', Role, 'role', resolve_basic=True),
+        OneToManyLookup('contact', Contact, 'contact_id'),
+        OneToManyLookup('contact_role', Role, 'role'),
         ForeignKeyLookup('maintenance_and_update_frequency', UpdateFrequency, 'frequency'),
         ForeignKeyLookup('optional_data', DataPresent, 'flag'),
     ]

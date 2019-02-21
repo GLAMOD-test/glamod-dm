@@ -9,8 +9,9 @@ import click
 import logging
 
 from glamod.parser.utils import timeit, unzip
-from glamod.parser.processors import (SourceAndStationConfigProcessor,
-                                      HeaderAndObsTableProcessor)
+from glamod.parser.processors import (SourceConfigurationProcessor,
+    StationConfigurationProcessor, StationConfigurationOptionalProcessor,
+    HeaderTableProcessor, ObservationsTableProcessor)
 
 
 logger = logging.getLogger(__package__)
@@ -53,21 +54,31 @@ def parse_source_station_delivery(location):
     logger.info('Beginning parsing of SOURCE and STATION files at: '
           '{}'.format(location))
 
-    processor = SourceAndStationConfigProcessor(location)
-    processor.run()
+    processor_classes = [
+        SourceConfigurationProcessor,
+        StationConfigurationProcessor,
+        StationConfigurationProcessor,
+    ]
     
+    for processor_class in processor_classes:
+        processor = processor_class(location)
+        processor.run()
 
 @timeit
 def parse_data_delivery(location):
     logger.info('Beginning parsing of HEADER and OBSERVATIONS TABLE '
           'files at: {}'.format(location))
 
-    processor = HeaderAndObsTableProcessor(location)
-    processor.run()
-
+    processor_classes = [
+        HeaderTableProcessor,
+        ObservationsTableProcessor,
+    ]
+    
+    for processor_class in processor_classes:
+        processor = processor_class(location)
+        processor.run()
 
 
 if __name__ == '__main__':
 
     parse_delivery()
-

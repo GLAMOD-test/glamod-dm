@@ -17,19 +17,19 @@ class StationConfigurationParserRules(_ParserRulesBase):
 
     lookups = [
         ForeignKeyLookup('primary_id_scheme', IdScheme, 'scheme'),
-        OneToManyLookup('secondary_id_scheme', IdScheme, 'scheme', resolve_basic=True),
-        OneToManyLookup('role', Role, 'role', resolve_basic=True),
+        OneToManyLookup('secondary_id_scheme', IdScheme, 'scheme'),
+        OneToManyLookup('role', Role, 'role'),
         ForeignKeyLookup('station_crs', Crs, 'crs'),
         ForeignKeyLookup('station_type', StationType, 'type'),
         ForeignKeyLookup('platform_type', PlatformType, 'type'),
         ForeignKeyLookup('platform_sub_type', PlatformSubType, 'sub_type'),
         ForeignKeyLookup('operating_institute', Organisation, 'organisation_id'),
         ForeignKeyLookup('operating_territory', SubRegion, 'sub_region'),
-        OneToManyLookup('contact', Contact, 'contact_id', resolve_basic=True),
+        OneToManyLookup('contact', Contact, 'contact_id'),
         ForeignKeyLookup('observing_frequency', ObservingFrequency, 'frequency'),
-        OneToManyLookup('telecommunication_method', CommunicationMethod, 'method', resolve_basic=True),
+        OneToManyLookup('telecommunication_method', CommunicationMethod, 'method'),
         ForeignKeyLookup('station_automation', AutomationStatus, 'automation'),
-        OneToManyLookup('observed_variables', ObservedVariable, 'variable', resolve_basic=True),
+        OneToManyLookup('observed_variables', ObservedVariable, 'variable'),
         ForeignKeyLookup('optional_data', DataPresent, 'flag'),
         
         # Ignore lookups for extended fields

@@ -9,40 +9,56 @@ from django.core.exceptions import ObjectDoesNotExist
 logger = logging.getLogger(__name__)
 
 
-class Lookup(object):
+class Lookup:
     
-    def __init__(self, key, model, matching_field, query_map=None,
-                 extra_fields=None, resolve_basic=False):
+    def __init__(self, key):
         
         self._key = key
+    
+    def get_original_key(self):
+        
+        return self._key
+    
+    def get_id_key(self):
+        
+        raise NotImplementedError()
+    
+    def resolve(self, record):
+        
+        raise NotImplementedError()
+
+
+class ForeignKeyLookup(Lookup):
+    
+    def __init__(self, key, model, matching_field, query_map=None,
+                 extra_fields=None):
+        
+        super().__init__(key)
         self._model = model
         self._matching_field = matching_field
         self._query_map = self._generate_full_query_map(query_map)
         self._extra_fields = extra_fields
-        self._resolve_basic = resolve_basic
     
-    def get_key(self):
+    def get_id_key(self):
         
-        return self._key
+        return self._key + '_id'
     
     def resolve(self, record):
         
         query = self._build_query(record)
         if not query:
-            return None
+            return None, None
         
         resolved_object = self._resolve_object(query)
         
-        resolved = {}
-        resolved[self._key] = resolved_object
-        
+        extra_values = {}
         if self._extra_fields:
             for record_field, lookup_field in self._extra_fields.items():
                 extra_value = getattr(resolved_object, lookup_field)
                 if not is_null(extra_value):
-                    resolved[record_field] = extra_value
+                    extra_values[record_field] = extra_value
         
-        return resolved
+        return resolved_object, extra_values
     
     def _build_query(self, record):
         
@@ -90,29 +106,26 @@ class Lookup(object):
         return f"Lookup for field: {self._key}"
 
 
-class ForeignKeyLookup(Lookup):
-    pass
-
-
 class OneToManyLookup(ForeignKeyLookup):
+    
+    def get_id_key(self):
+        
+        return self._key
     
     def resolve(self, record):
         
         lookup_values = record.get(self._key)
         if not lookup_values:
-            return []
+            return [], None
         
         resolved_objects = []
         for value in lookup_values:
             query = self._build_query({ self._key: value })
             resolved_object = self._resolve_object(query)
             
-            if self._resolve_basic:
-                resolved_objects.append(value)
-            else:
-                resolved_objects.append(resolved_object)
+            resolved_objects.append(resolved_object)
         
-        return { self._key: resolved_objects }
+        return resolved_objects, None
 
 
 class LinkedLookup(Lookup):
@@ -125,16 +138,17 @@ class LinkedLookup(Lookup):
         self._linked_through = linked_through
         self._lookup = lookup
     
+    def get_id_key(self):
+        
+        return None
+    
     def resolve(self, record):
         
         linked_record = record.get(self._linked_through)
         if not linked_record:
             raise ValueError(f"Record is missing key: {self._linked_through}")
         
-        resolved = self._lookup.resolve(linked_record)
-        del resolved[self._lookup.get_key()]
-        
-        return resolved
+        return self._lookup.resolve(linked_record)
 
 
 class _ParserRulesBase(object):

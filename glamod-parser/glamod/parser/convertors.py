@@ -3,7 +3,6 @@ from dateutil.parser import parse as timestamp
 from functools import wraps
 
 from glamod.parser.complex_types import *
-from glamod.parser.settings import INT_NAN
 
 
 __all__ = ['str_strip', 'int_or_empty', 'float_or_empty', 'timestamp_or_empty',
@@ -24,7 +23,7 @@ def str_strip(value):
     return str(value)
 
 
-def _x_or_empty(value, conv_func, default=INT_NAN):
+def _x_or_empty(value, conv_func, default=None):
     if value == '':
         return default
 
