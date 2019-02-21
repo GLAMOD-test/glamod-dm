@@ -30,20 +30,14 @@ class SourceConfigurationLogicCheck(_LogicCheckBase):
 
     @timeit
     def run(self):
-        if self.record_count > 10000000:
-            raise Exception('TOO MANY RECORDS!!!')
-
-        logger.info('Completed Logic Checks for: {}'.format(self.ftype))
+        pass
 
 
 class StationConfigurationLogicCheck(_LogicCheckBase):
 
     @timeit
     def run(self):
-        if self.record_count > 10000000:
-            raise Exception('TOO MANY RECORDS!!!')
-
-        logger.info('Completed Logic Checks for: {}'.format(self.ftype))
+        pass
 
 
 class StationConfigurationOptionalLogicCheck(_LogicCheckBase):

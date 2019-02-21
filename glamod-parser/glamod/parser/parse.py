@@ -57,7 +57,7 @@ def parse_source_station_delivery(location):
     processor_classes = [
         SourceConfigurationProcessor,
         StationConfigurationProcessor,
-        StationConfigurationProcessor,
+        StationConfigurationOptionalProcessor,
     ]
     
     for processor_class in processor_classes:

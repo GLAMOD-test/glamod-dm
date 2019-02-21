@@ -9,6 +9,7 @@ import os
 import zipfile
 import logging
 import math
+import numbers
 
 from pandas import notnull
 
@@ -34,15 +35,15 @@ def timeit(method):
 
 def is_null(value):
     
-    # Is None, easy
+    # Check if None
     if value is None: return True
     
-    if not isinstance(value, str):
-        # Not a string, nor a valid number
+    if isinstance(value, numbers.Number):
+        # Check if NaN value
         if math.isnan(value): return True
     
-    # Empty string
-    elif not value: return True
+    # Check if empty string
+    if isinstance(value, str) and not value: return True
     
     return False
 

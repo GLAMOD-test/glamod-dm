@@ -46,7 +46,6 @@ class RecordManager:
         :return: A DataFrame object containing resolved record data.
         """
         
-        initial_columns = list(record_data_frame.columns.values)
         records = record_data_frame.to_dict('records')
         resolved_records = DataFrame()
         for record in records:
@@ -57,7 +56,6 @@ class RecordManager:
                 resolved_record, ignore_index=True
             )
         
-        resolved_columns = list(resolved_records.columns.values)
         return resolved_records
     
     def _resolve_missing_values(self, record_data, replace_references=True):
@@ -94,10 +92,15 @@ class RecordManager:
             
             if replace_references:
                 field_values[lookup.get_original_key()] = resolved_object
+                
             else:
                 id_field = lookup.get_id_key()
-                field_values[id_field] = field_values.pop(
-                    lookup.get_original_key())
+                if hasattr(resolved_object, 'pk'):
+                    field_values[id_field] = resolved_object.pk
+                else:
+                    field_values[id_field] = resolved_object
+                
+                del field_values[lookup.get_original_key()]
             
             if extra_values:
                 field_values.update(extra_values)

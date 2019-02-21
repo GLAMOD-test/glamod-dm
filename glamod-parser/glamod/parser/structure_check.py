@@ -51,7 +51,7 @@ class _StructureCheckBase:
         
         if not self._found_files:
             logger.error(
-                f'No files found at {self._top_directory} '
+                f'No files found at {self._file_directories} '
                 f'with pattern: {self.file_name_pattern}'
             )
         
@@ -68,11 +68,13 @@ class SourceAndStationConfigStructureCheck(_StructureCheckBase):
         pass
 
 
-# TODO: find a way to reproduce this check elsewhere
 class HeaderAndObservationsTablesStructureCheck(_StructureCheckBase):
     
     def _specific_checks(self):
-        self._validate_file_lengths()
+        pass
+        
+        # TODO: find a way to reproduce this check elsewhere
+        #self._validate_file_lengths()
     
     def _validate_file_lengths(self):
         """ Check that all header and observation tables have equal number of
@@ -101,17 +103,17 @@ class HeaderAndObservationsTablesStructureCheck(_StructureCheckBase):
 class HeaderTableStructureCheck(
         HeaderAndObservationsTablesStructureCheck):
     
-    expected_directories = ['header_table_configuration']
+    expected_directories = ['header_table']
     file_name_pattern = \
-        'header_table_configuration_({}+)\.psv'.format(REGEX_SAFE)
+        'header_table_({}+)\.psv'.format(REGEX_SAFE)
 
 
 class ObservationsTableStructureCheck(
         HeaderAndObservationsTablesStructureCheck):
     
-    expected_directories = ['observations_table_configuration']
+    expected_directories = ['observations_table']
     file_name_pattern = \
-        'observations_table_configuration_({}+)\.psv'.format(REGEX_SAFE)
+        'observations_table_({}+)\.psv'.format(REGEX_SAFE)
 
 
 class SourceConfigurationStructureCheck(

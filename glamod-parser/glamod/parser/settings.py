@@ -14,7 +14,7 @@ from cdmapp.models import _ALL_MODELS
 
 from .deliveries_app.models import *
 
-REGEX_SAFE = '[a-zA-Z0-9-.]'
+REGEX_SAFE = '[a-zA-Z0-9-._]'
 
 INPUT_DELIMITER = '|'
 INPUT_ENCODING = 'windows-1252'
