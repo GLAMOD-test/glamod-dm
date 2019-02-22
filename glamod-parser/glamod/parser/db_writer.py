@@ -42,10 +42,3 @@ class DBWriter(object):
             chunksize=DB_CHUNK_SIZE,
             index=False
         )
-        
-        # Django saving does not work well for the current schema
-        #for record in self._record_manager.create_records(chunk):
-        #    record.save()
-        #
-        #TODO: find a way to use bulk_create
-        #self.app_model.objects.bulk_create(records)

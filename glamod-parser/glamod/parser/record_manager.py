@@ -8,8 +8,9 @@ import logging
 import copy
 
 from pandas.core.frame import DataFrame
+from django.db.models.base import Model
 
-from glamod.parser.utils import is_null, to_dict_dropna
+from glamod.parser.utils import is_null, to_dict_dropna, timeit
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ class RecordManager:
             
             yield record_object
     
+    @timeit
     def resolve_data_frame(self, record_data_frame):
         """ Resolves the records in a data frame.
         
@@ -47,18 +49,15 @@ class RecordManager:
         """
         
         records = record_data_frame.to_dict('records')
-        resolved_records = DataFrame()
-        for record in records:
-            
-            resolved_record = self._resolve_missing_values(
-                record, replace_references=False)
-            resolved_records = resolved_records.append(
-                resolved_record, ignore_index=True
-            )
+        
+        # Resolve each record in the list and build a new data frame from them
+        for index, record in enumerate(records):
+            records[index] = self._resolve_missing_values(record)
+        resolved_records = DataFrame(records)
         
         return resolved_records
     
-    def _resolve_missing_values(self, record_data, replace_references=True):
+    def _resolve_missing_values(self, record_data):
         """ Creates a new record from a dictionary of potential field values.
         
         :param record_data: dictionary of model field names and values
@@ -66,8 +65,7 @@ class RecordManager:
         
         # Remove non-field keys in record dictionary
         field_values = copy.deepcopy(record_data)
-        field_values = self._resolve_related_records(
-            field_values, replace_references=replace_references)
+        field_values = self._resolve_related_records(field_values)
         
         # Separate and save extended fields if any are found.
         field_values, extended_field_values = \
@@ -77,7 +75,7 @@ class RecordManager:
         
         return field_values
     
-    def _resolve_related_records(self, field_values, replace_references=True):
+    def _resolve_related_records(self, field_values):
         """ Resolves foreign-key relationships according to custom rules.
         
         :param field_values: dictionary of model field names and values
@@ -88,15 +86,10 @@ class RecordManager:
             if logger.isEnabledFor(logging.DEBUG):
                 logger.debug(f"Resolving: {lookup}")
             
-            resolved_object, extra_values = lookup.resolve(field_values)
+            resolved_value, extra_values = lookup.resolve(
+                field_values, partial=True)
             
-            if replace_references:
-                field_values[lookup.get_key()] = resolved_object
-            else:
-                if hasattr(resolved_object, 'pk'):
-                    # Use the most appropriate foreign key value if found
-                    field_values[lookup.get_key()] = resolved_object.pk
-            
+            field_values[lookup.get_key()] = resolved_value
             if extra_values:
                 field_values.update(extra_values)
         

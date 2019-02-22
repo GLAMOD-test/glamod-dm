@@ -27,22 +27,32 @@ class Lookup:
 class ForeignKeyLookup(Lookup):
     
     def __init__(self, key, model, matching_field, query_map=None,
-                 extra_fields=None):
+                 extra_fields=None, default=None):
         
         super().__init__(key)
         self._model = model
         self._matching_field = matching_field
         self._query_map = self._generate_full_query_map(query_map)
         self._extra_fields = extra_fields
+        self._default = default
     
-    def resolve(self, record):
+    def resolve(self, record, partial=False):
+        
+        value = self._default
         
         query = self._build_query(record)
         if not query:
-            return None, None
+            return value, None
         
         resolved_object = self._resolve_object(query)
-        return resolved_object, self._get_extra_values(resolved_object)
+        if resolved_object:
+            if partial:
+                value = resolved_object.pk
+            else:
+                value = resolved_object
+        extra_values = self._get_extra_values(resolved_object, partial=partial)
+        
+        return value, extra_values
     
     def _build_query(self, record):
         
@@ -86,19 +96,19 @@ class ForeignKeyLookup(Lookup):
             ))
             raise e
     
-    def _get_extra_values(self, resolved_object):
+    def _get_extra_values(self, resolved_object, partial=False):
         
-        extra_values = {}
+        values = {}
         if self._extra_fields:
             for record_field, lookup_field in self._extra_fields.items():
-                extra_value = getattr(resolved_object, lookup_field)
-                if not is_null(extra_value):
-                    if hasattr(extra_value, 'pk'):
-                        extra_values[record_field] = extra_value.pk
-                    else:
-                        extra_values[record_field] = extra_value
+                value = getattr(resolved_object, lookup_field)
+                
+                if partial and hasattr(value, 'pk'):
+                    values[record_field] = value.pk
+                elif not is_null(value):
+                    values[record_field] = value
         
-        return extra_values
+        return values
     
     def __str__(self):
         return f"Lookup for field: {self._key}"
@@ -106,39 +116,25 @@ class ForeignKeyLookup(Lookup):
 
 class OneToManyLookup(ForeignKeyLookup):
     
-    def resolve(self, record):
+    def resolve(self, record, partial=False):
         
         lookup_values = record.get(self._key)
         if not lookup_values:
             return [], None
         
-        resolved_objects = []
+        resolved_values = []
         for value in lookup_values:
             query = self._build_query({ self._key: value })
             resolved_object = self._resolve_object(query)
+            if resolved_object:
+                if partial:
+                    value = resolved_object.pk
+                else:
+                    value = resolved_object
             
-            resolved_objects.append(resolved_object)
+            resolved_values.append(value)
         
-        return resolved_objects, None
-
-
-class LinkedLookup(Lookup):
-    
-    def __init__(self, lookup=None, *args, **kwargs):
-        
-        super().__init__(*args, **kwargs)
-        
-        if not isinstance(lookup, Lookup):
-            raise ValueError(
-                f"Invalid lookup value, {lookup}. Must be a Lookup.")
-        self._lookup = lookup
-    
-    def resolve(self, record):
-        
-        resolved_object, extra_values = super().resolve(record)
-        linked_resolved_object, linked_extra_values = self._lookup.resolve(resolved_object)
-        
-        return None, None
+        return resolved_values, None
 
 
 class _ParserRulesBase(object):

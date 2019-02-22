@@ -12,14 +12,14 @@ from cdmapp.models import StationConfiguration, Region, IdScheme, ReportType, \
 from glamod.parser.deliveries_app.models import \
     StationConfigurationLookupFields
 
-from ._base import OD, _ParserRulesBase, ForeignKeyLookup, LinkedLookup, \
-    OneToManyLookup
+from ._base import OD, _ParserRulesBase, ForeignKeyLookup, OneToManyLookup
 
 
 class HeaderTableParserRules(_ParserRulesBase):
 
     lookups = [
-        ForeignKeyLookup('primary_station_id', StationConfiguration, 'primary_id',
+        ForeignKeyLookup(
+            'primary_station_id', StationConfiguration, 'primary_id',
             query_map = { 'record_number': 'record_number' },
             extra_fields = {
                 'station_name': 'station_name',
@@ -52,7 +52,7 @@ class HeaderTableParserRules(_ParserRulesBase):
         ForeignKeyLookup('location_method', LocationMethod, 'method'),
         ForeignKeyLookup('location_quality', LocationQuality, 'quality'),
         ForeignKeyLookup('sea_level_datum', SeaLevelDatum, 'datum'),
-        ForeignKeyLookup('report_type', ReportType, 'type'),
+        ForeignKeyLookup('report_type', ReportType, 'type', default=0),
         ForeignKeyLookup('report_meaning_of_timestamp', MeaningOfTimestamp, 'meaning'),
         ForeignKeyLookup('report_duration', Duration, 'duration'),
         ForeignKeyLookup('report_time_quality', TimeQuality, 'quality'),

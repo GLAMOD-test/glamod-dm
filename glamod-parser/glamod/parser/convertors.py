@@ -1,5 +1,5 @@
 
-from dateutil.parser import parse as timestamp
+from pandas.core.tools.datetimes import to_datetime
 from functools import wraps
 
 from glamod.parser.complex_types import *
@@ -39,7 +39,7 @@ def float_or_empty(value):
 
 
 def timestamp_or_empty(value):
-    return _x_or_empty(value, timestamp, default=None)
+    return _x_or_empty(value, to_datetime, default=None)
 
 
 def _as_list(value):

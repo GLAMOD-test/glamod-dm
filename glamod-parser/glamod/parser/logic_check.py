@@ -17,7 +17,7 @@ class _LogicCheckBase(object):
 
     def _count_records(self):
         "Use the name of the final chunk file to count the records."
-        self.record_count = self._chunk_manager.count_records()
+        self.record_count = self._chunk_manager.get_record_count()
         logger.info('Working on {} records.'.format(self.record_count))
 
     @timeit

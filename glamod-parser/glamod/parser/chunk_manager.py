@@ -20,6 +20,8 @@ class ChunkManager:
         safe_mkdir(pickle_directory)
         self._pickle_directory = pickle_directory
         self._pickled_chunks = []
+        
+        self._record_count = 0
 
     def pickle_chunks(self, chunks, chunk_name, record_manager=None):
         
@@ -28,10 +30,12 @@ class ChunkManager:
             if record_manager:
                 chunk = record_manager.resolve_data_frame(chunk)
             
-            pickle_path = self._get_pickle_path(chunk_name, count, len(chunk))
+            chunk_length = len(chunk)
+            pickle_path = self._get_pickle_path(chunk_name, count, chunk_length)
             self._pickle(chunk, pickle_path)
             
             self._pickled_chunks.append(pickle_path)
+            self._record_count += chunk_length
 
     def read_cached_chunks(self):
         
@@ -43,10 +47,10 @@ class ChunkManager:
             with open(pickled_chunk_path, 'rb') as reader:
                 yield pickle.load(reader)
     
-    def count_records(self):
+    def get_record_count(self):
         """ Use the name of the final chunk file to count the records. """
         
-        return int(self._pickled_chunks[-1].split('-')[-1].split('.')[0])
+        return self._record_count
     
     def _pickle(self, chunk, out_path):
         
@@ -54,11 +58,11 @@ class ChunkManager:
         with open(out_path, 'wb') as writer:
             pickle.dump(chunk, writer, protocol=2)
     
-    def _get_pickle_path(self, chunk_name, count, this_chunk_length):
+    def _get_pickle_path(self, chunk_name, count, chunk_length):
         
         zpad = RECORD_COUNT_ZERO_PAD
         _start = count * CHUNK_SIZE + 1 
-        _end = _start + this_chunk_length - 1
+        _end = _start + chunk_length - 1
         fname = f'{chunk_name}.CHUNK.{_start:{zpad}}-{_end:{zpad}}.pickle'
         
         return os.path.join(self._pickle_directory, fname)
