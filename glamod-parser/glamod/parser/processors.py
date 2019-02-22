@@ -18,7 +18,6 @@ from .rules import (SourceConfigurationParserRules,
 
 logger = logging.getLogger(__name__)
 
-
 class _DeliveryProcessorBase:
     
     def __init__(self, location):
@@ -36,8 +35,10 @@ class _DeliveryProcessorBase:
         self._logic_check_class = self._get_check_by_name('LogicCheck')
         
         self._chunk_manager = ChunkManager(pickle_directory)
-        self._record_manager = RecordManager(self._app_model, self._rules)
-        self._db_writer = DBWriter(self._record_manager)
+        
+        rules = self._rules_class()
+        self._record_manager = RecordManager(self._app_model, rules)
+        self._db_writer = DBWriter(self._record_manager, self._table_name)
 
     def run(self):
         self._run_structure_checks()
@@ -86,24 +87,29 @@ class _DeliveryProcessorBase:
 
 class HeaderTableProcessor(_DeliveryProcessorBase):
     _app_model = HeaderTable
-    _rules = HeaderTableParserRules
+    _table_name = 'header_table'
+    _rules_class = HeaderTableParserRules
 
 
 class ObservationsTableProcessor(_DeliveryProcessorBase):
     _app_model = ObservationsTable
-    _rules = ObservationsTableParserRules
+    _table_name = 'observations_table'
+    _rules_class = ObservationsTableParserRules
 
 
 class SourceConfigurationProcessor(_DeliveryProcessorBase):
     _app_model = SourceConfiguration
-    _rules = SourceConfigurationParserRules()
+    _table_name = 'source_configuration'
+    _rules_class = SourceConfigurationParserRules
 
 
 class StationConfigurationProcessor(_DeliveryProcessorBase):
     _app_model = StationConfiguration
-    _rules = StationConfigurationParserRules()
+    _table_name = 'station_configuration'
+    _rules_class = StationConfigurationParserRules
 
 
 class StationConfigurationOptionalProcessor(_DeliveryProcessorBase):
     _app_model = StationConfigurationOptional
-    _rules = StationConfigurationOptionalParserRules()
+    _table_name = 'station_configuration_optional'
+    _rules_class = StationConfigurationOptionalParserRules

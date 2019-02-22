@@ -26,6 +26,9 @@ INT_NAN = -9999
 VERBOSE_LOGGING = False
 
 CHUNK_SIZE = 10000
+DB_CHUNK_SIZE = CHUNK_SIZE
+DB_CONNECTION = None
+DB_SCHEMA = 'cdm_v1'
 RECORD_COUNT_ZERO_PAD = '07d' # 10 million records limit expected
 CHUNK_CACHE_DIR = './chunk-cache'
 CHUNK_CACHE_DIR_DEPTH = 2

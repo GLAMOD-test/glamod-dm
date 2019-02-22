@@ -20,6 +20,7 @@ class HeaderTableParserRules(_ParserRulesBase):
 
     lookups = [
         ForeignKeyLookup('primary_station_id', StationConfiguration, 'primary_id',
+            query_map = { 'record_number': 'record_number' },
             extra_fields = {
                 'station_name': 'station_name',
                 'station_type': 'station_type',
@@ -29,24 +30,22 @@ class HeaderTableParserRules(_ParserRulesBase):
                 'latitude': 'latitude',
                 'sub_region': 'operating_territory',
                 'crs': 'station_crs'
-            }
+            },
         ),
-        LinkedLookup('primary_station_id',
-            ForeignKeyLookup(
-                'primary_id', StationConfigurationLookupFields, 'primary_id',
-                query_map = { 'record_number': 'record_number' },
-                extra_fields = {
-                    'region': 'region',
-                    'primary_station_id_scheme': 'primary_station_id_scheme',
-                    'location_accuracy': 'location_accuracy',
-                    'location_method': 'location_method',
-                    'location_quality': 'location_quality',
-                    'height_of_station_above_local_ground': 'height_of_station_above_local_ground',
-                    'height_of_station_above_sea_level': 'height_of_station_above_sea_level',
-                    'height_of_station_above_sea_level_accuracy': 'height_of_station_above_sea_level_accuracy',
-                    'sea_level_datum': 'sea_level_datum'
-                }
-            )
+        ForeignKeyLookup(
+            'primary_station_id', StationConfigurationLookupFields, 'primary_id',
+            query_map = { 'record_number': 'record_number' },
+            extra_fields = {
+                'region': 'region',
+                'primary_station_id_scheme': 'primary_station_id_scheme',
+                'location_accuracy': 'location_accuracy',
+                'location_method': 'location_method',
+                'location_quality': 'location_quality',
+                'height_of_station_above_local_ground': 'height_of_station_above_local_ground',
+                'height_of_station_above_sea_level': 'height_of_station_above_sea_level',
+                'height_of_station_above_sea_level_accuracy': 'height_of_station_above_sea_level_accuracy',
+                'sea_level_datum': 'sea_level_datum'
+            }
         ),
         ForeignKeyLookup('region', Region, 'region'),
         ForeignKeyLookup('primary_station_id_scheme', IdScheme, 'scheme'),

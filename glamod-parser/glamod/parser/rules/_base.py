@@ -15,13 +15,9 @@ class Lookup:
         
         self._key = key
     
-    def get_original_key(self):
+    def get_key(self):
         
         return self._key
-    
-    def get_id_key(self):
-        
-        raise NotImplementedError()
     
     def resolve(self, record):
         
@@ -39,10 +35,6 @@ class ForeignKeyLookup(Lookup):
         self._query_map = self._generate_full_query_map(query_map)
         self._extra_fields = extra_fields
     
-    def get_id_key(self):
-        
-        return self._key + '_id'
-    
     def resolve(self, record):
         
         query = self._build_query(record)
@@ -50,15 +42,7 @@ class ForeignKeyLookup(Lookup):
             return None, None
         
         resolved_object = self._resolve_object(query)
-        
-        extra_values = {}
-        if self._extra_fields:
-            for record_field, lookup_field in self._extra_fields.items():
-                extra_value = getattr(resolved_object, lookup_field)
-                if not is_null(extra_value):
-                    extra_values[record_field] = extra_value
-        
-        return resolved_object, extra_values
+        return resolved_object, self._get_extra_values(resolved_object)
     
     def _build_query(self, record):
         
@@ -102,15 +86,25 @@ class ForeignKeyLookup(Lookup):
             ))
             raise e
     
+    def _get_extra_values(self, resolved_object):
+        
+        extra_values = {}
+        if self._extra_fields:
+            for record_field, lookup_field in self._extra_fields.items():
+                extra_value = getattr(resolved_object, lookup_field)
+                if not is_null(extra_value):
+                    if hasattr(extra_value, 'pk'):
+                        extra_values[record_field] = extra_value.pk
+                    else:
+                        extra_values[record_field] = extra_value
+        
+        return extra_values
+    
     def __str__(self):
         return f"Lookup for field: {self._key}"
 
 
 class OneToManyLookup(ForeignKeyLookup):
-    
-    def get_id_key(self):
-        
-        return self._key
     
     def resolve(self, record):
         
@@ -130,25 +124,21 @@ class OneToManyLookup(ForeignKeyLookup):
 
 class LinkedLookup(Lookup):
     
-    def __init__(self, linked_through, lookup):
+    def __init__(self, lookup=None, *args, **kwargs):
+        
+        super().__init__(*args, **kwargs)
         
         if not isinstance(lookup, Lookup):
-            raise ValueError("Invalid linked_through value. Must be a Lookup.")
-        
-        self._linked_through = linked_through
+            raise ValueError(
+                f"Invalid lookup value, {lookup}. Must be a Lookup.")
         self._lookup = lookup
-    
-    def get_id_key(self):
-        
-        return None
     
     def resolve(self, record):
         
-        linked_record = record.get(self._linked_through)
-        if not linked_record:
-            raise ValueError(f"Record is missing key: {self._linked_through}")
+        resolved_object, extra_values = super().resolve(record)
+        linked_resolved_object, linked_extra_values = self._lookup.resolve(resolved_object)
         
-        return self._lookup.resolve(linked_record)
+        return None, None
 
 
 class _ParserRulesBase(object):

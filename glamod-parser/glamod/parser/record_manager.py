@@ -91,16 +91,11 @@ class RecordManager:
             resolved_object, extra_values = lookup.resolve(field_values)
             
             if replace_references:
-                field_values[lookup.get_original_key()] = resolved_object
-                
+                field_values[lookup.get_key()] = resolved_object
             else:
-                id_field = lookup.get_id_key()
                 if hasattr(resolved_object, 'pk'):
-                    field_values[id_field] = resolved_object.pk
-                else:
-                    field_values[id_field] = resolved_object
-                
-                del field_values[lookup.get_original_key()]
+                    # Use the most appropriate foreign key value if found
+                    field_values[lookup.get_key()] = resolved_object.pk
             
             if extra_values:
                 field_values.update(extra_values)

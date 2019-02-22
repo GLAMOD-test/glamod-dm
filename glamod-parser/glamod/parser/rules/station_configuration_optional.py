@@ -12,7 +12,10 @@ from ._base import OD, _ParserRulesBase, ForeignKeyLookup
 class StationConfigurationOptionalParserRules(_ParserRulesBase):
     
     lookups = [
-        ForeignKeyLookup('station_primary_id', StationConfiguration, 'primary_id'),
+        ForeignKeyLookup(
+            'station_primary_id', StationConfiguration, 'primary_id',
+            query_map = { 'record_number': 'record_number' },
+        ),
         ForeignKeyLookup('kind', Kind, 'kind'),
         ForeignKeyLookup('field', StationConfigurationFields, 'field_id'),
     ]

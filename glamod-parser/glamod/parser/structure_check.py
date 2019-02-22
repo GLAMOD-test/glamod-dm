@@ -135,6 +135,6 @@ class StationConfigurationStructureCheck(
 class StationConfigurationOptionalStructureCheck(
         SourceAndStationConfigStructureCheck):
     
-    expected_directories = ['station_configuration_optional']
+    expected_directories = ['station_configuration']
     file_name_pattern = \
         'station_configuration_optional_({}+)\.psv'.format(REGEX_SAFE)

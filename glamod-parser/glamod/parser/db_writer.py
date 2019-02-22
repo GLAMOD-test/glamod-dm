@@ -1,9 +1,11 @@
 import logging
 
 from django.db import transaction
+from sqlalchemy import create_engine
 
 from .utils import timeit
 from .exceptions import ParserError
+from .settings import DB_CHUNK_SIZE, DB_CONNECTION, DB_SCHEMA
 
 
 logger = logging.getLogger(__name__)
@@ -11,8 +13,10 @@ logger = logging.getLogger(__name__)
 
 class DBWriter(object):
     
-    def __init__(self, record_manager):
+    def __init__(self, record_manager, table_name):
         
+        self._table_name = table_name
+        self._engine = create_engine(DB_CONNECTION)
         self._record_manager = record_manager
     
     def write_to_db(self, chunks):
@@ -28,8 +32,20 @@ class DBWriter(object):
     @timeit
     def _write_chunk(self, chunk):
         
-        for record in self._record_manager.create_records(chunk):
-            record.save()
+        records = chunk.to_dict(orient='rows')
         
+        chunk.to_sql(
+            self._table_name,
+            self._engine,
+            schema=DB_SCHEMA,
+            if_exists='append',
+            chunksize=DB_CHUNK_SIZE,
+            index=False
+        )
+        
+        # Django saving does not work well for the current schema
+        #for record in self._record_manager.create_records(chunk):
+        #    record.save()
+        #
         #TODO: find a way to use bulk_create
         #self.app_model.objects.bulk_create(records)
