@@ -2,14 +2,43 @@
 Rules for station_configuration files.
 """
 
-from glamod.parser.convertors import *
-from glamod.parser.settings import *
+from glamod.parser.convertors import list_of_ints, list_of_strs, \
+    int_or_empty, float_or_empty, timestamp_or_empty
+from cdmapp.models import IdScheme, SubRegion, Crs, \
+    PlatformType, PlatformSubType, Organisation, Contact, Role, StationType, \
+    ObservingFrequency, ObservedVariable, DataPresent, \
+    CommunicationMethod, AutomationStatus
 
-
-from ._base import OD, _ParserRulesBase
+from glamod.parser.deliveries_app.models import StationConfigurationLookupFields
+from ._base import OD, _ParserRulesBase, ForeignKeyLookup, OneToManyLookup
 
 
 class StationConfigurationParserRules(_ParserRulesBase):
+
+    lookups = [
+        ForeignKeyLookup('primary_id_scheme', IdScheme, 'scheme'),
+        OneToManyLookup('secondary_id_scheme', IdScheme, 'scheme'),
+        OneToManyLookup('role', Role, 'role'),
+        ForeignKeyLookup('station_crs', Crs, 'crs'),
+        ForeignKeyLookup('station_type', StationType, 'type'),
+        ForeignKeyLookup('platform_type', PlatformType, 'type'),
+        ForeignKeyLookup('platform_sub_type', PlatformSubType, 'sub_type'),
+        ForeignKeyLookup('operating_institute', Organisation, 'organisation_id'),
+        ForeignKeyLookup('operating_territory', SubRegion, 'sub_region'),
+        OneToManyLookup('contact', Contact, 'contact_id'),
+        ForeignKeyLookup('observing_frequency', ObservingFrequency, 'frequency'),
+        OneToManyLookup('telecommunication_method', CommunicationMethod, 'method'),
+        ForeignKeyLookup('station_automation', AutomationStatus, 'automation'),
+        OneToManyLookup('observed_variables', ObservedVariable, 'variable'),
+        ForeignKeyLookup('optional_data', DataPresent, 'flag'),
+        
+        # Ignore lookups for extended fields
+        #ForeignKeyLookup('region', Region, 'region'),
+        #ForeignKeyLookup('data_policy_licence', DataPolicyLicence, 'policy'),
+        #ForeignKeyLookup('location_method', LocationMethod, 'method'),
+        #ForeignKeyLookup('location_quality', LocationQuality, 'quality'),
+        #ForeignKeyLookup('sea_level_datum', SeaLevelDatum, 'datum'),
+    ]
 
     fields = OD([
 
@@ -53,6 +82,7 @@ class StationConfigurationParserRules(_ParserRulesBase):
         ('metadata_contact_role', list_of_ints),
     ])
 
+    extended_field_model = StationConfigurationLookupFields
 
     # Extended fields (not defined in table schema)
     #  - to be saved to the 'deliveries' DB for later lookups
@@ -73,34 +103,3 @@ class StationConfigurationParserRules(_ParserRulesBase):
     extended_fields_to_duplicate = ('primary_id', 'record_number')
 
     index_field = 'primary_id'
-
-    code_table_fields = OD([
-            ('primary_id_scheme', (IdScheme, 'scheme', True)),
-            ('secondary_id_scheme', (IdScheme, 'scheme', True)),
-            ('station_crs', (Crs, 'crs', True)),
-            ('station_type', (StationType, 'type', True)),
-            ('platform_type', (PlatformType, 'type', True)),
-            ('platform_sub_type', (PlatformSubType, 'sub_type', True)),
-            ('operating_institute', (Organisation, 'organisation_id', True)),
-            ('operating_territory', (SubRegion, 'sub_region', True)),
-            ('contact', (Contact, 'contact_id', True)),
-            ('role', (Role, 'role', True)),
-            ('observing_frequency', (ObservingFrequency, 'frequency', True)),
-            ('telecommunication_method', (CommunicationMethod, 'method', True)),
-            ('station_automation', (AutomationStatus, 'automation', True)),
-            ('observed_variables', (ObservedVariable, 'variable', True)),
-            ('region', (Region, 'region', True)),
-            ('data_policy_licence', (DataPolicyLicence, 'policy', True)),
-            ('optional_data', (DataPresent, 'flag', True)),
-            ('location_method', (LocationMethod, 'method', True)),
-            ('location_quality', (LocationQuality, 'quality', True)),
-            ('sea_level_datum', (SeaLevelDatum, 'datum', True))
-    ])
-
-
-    # Structure of foreign key mappings:
-    #   {<field_name>: (<app_model>, <field_to_write_to>, <is_primary_key>[BOOL])}
-    # foreign_key_fields_to_add = OD([])
-    # NOTE: This "foreign_key_fields_to_add" property is created in the base class
-    #       as a reference to "code_table_fields". However, we might need them to be
-    #       separate so the code treats them as separate.

@@ -2,15 +2,18 @@
 Rules for source_configuration files.
 """
 
-from glamod.parser.convertors import *
-from glamod.parser.settings import *
+from glamod.parser.convertors import list_of_ints, list_of_strs, \
+    int_or_empty, float_or_empty, timestamp_or_empty
+from cdmapp.models import ProductLevel, ProductStatus, SourceFormat, \
+    Organisation, DataPolicyLicence, Contact, Role, UpdateFrequency, \
+    DataPresent
 
 from ._base import OD, _ParserRulesBase, ForeignKeyLookup, OneToManyLookup
 
 
 class SourceConfigurationParserRules(_ParserRulesBase):
     
-    vlookups = [
+    lookups = [
         ForeignKeyLookup('product_level', ProductLevel, 'description'),
         ForeignKeyLookup('product_status', ProductStatus, 'description'),
         ForeignKeyLookup('source_format', SourceFormat, 'format'),
@@ -57,5 +60,3 @@ class SourceConfigurationParserRules(_ParserRulesBase):
     ])
 
     index_field = 'source_id'
-
-    code_table_fields = OD([])

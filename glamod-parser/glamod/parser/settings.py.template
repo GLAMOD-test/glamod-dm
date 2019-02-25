@@ -1,0 +1,21 @@
+REGEX_SAFE = '[a-zA-Z0-9-._]'
+
+INPUT_DELIMITER = '|'
+INPUT_ENCODING = 'windows-1252'
+
+VERBOSE_LOGGING = False
+
+CHUNK_SIZE = 10000
+DB_CHUNK_SIZE = CHUNK_SIZE
+
+DATABASE = {
+    'name': '__DB_NAME__',
+    'user': '__DB_USER__',
+    'password': '__DB_PASSWORD__',
+    'host': '__DB_HOST__',
+    'port': '__DB_PORT__',
+}
+
+RECORD_COUNT_ZERO_PAD = '07d' # 10 million records limit expected
+CHUNK_CACHE_DIR = './chunk-cache'
+CHUNK_CACHE_DIR_DEPTH = 2

@@ -1,3 +1,4 @@
+settings.py
 chunk-cache/
 glamod-parser/glamod/parser/working_dir/
 setup_env.sh

@@ -8,13 +8,16 @@ import time
 import os
 import zipfile
 import logging
+import math
+import numbers
 
-logger = logging.getLogger(__name__)
+from pandas import notnull
 
 from glamod.parser.exceptions import ParserError
+from glamod.parser.settings import INPUT_ENCODING
 
-# Following settings import includes all Django Models
-from glamod.parser.settings import *
+
+logger = logging.getLogger(__name__)
 
 
 def timeit(method):
@@ -28,6 +31,43 @@ def timeit(method):
         logger.info('TIMED FUNCTION: "{}" ran in: {:.5f} seconds'.format(method_name, (te - ts)))
         return result
     return timed
+
+
+def is_null(value):
+    
+    # Check if None
+    if value is None: return True
+    
+    if isinstance(value, numbers.Number):
+        # Check if NaN value
+        if math.isnan(value): return True
+    
+    # Check if empty string
+    if isinstance(value, str) and not value: return True
+    
+    return False
+
+
+def robust_notnull(value):
+    
+    if hasattr(value, 'any'):
+        return notnull(value.any())
+    else:
+        return notnull(value)
+
+
+def to_dict_dropna(data_frame):
+    
+    data = data_frame.to_dict(orient='rows')
+    stripped_data = []
+    for row in data:
+        row_dict = {}
+        for key, value in row.items():
+            if not isinstance(value, list) and notnull(value):
+                row_dict[key] = value
+        stripped_data.append(row_dict)
+    
+    return stripped_data
 
 
 def unzip(location, target_dir):
@@ -98,28 +138,6 @@ def map_file_type(lookup, reverse=False):
             return dct[_key]
 
     raise KeyError('Cannot lookup mapping for: {}'.format(lookup))
-
-
-def _field_to_model_mapper(key, reverse=False):
-    _map = DB_MAPPINGS
- 
-    if reverse:
-        dct = dict([(_value, _key) for _key, _value in _map.items()])
-    else:
-        dct = _map
-    
-    if key not in dct:
-        raise KeyError('Cannot lookup mapping for: {}'.format(key))    
-
-    return dct[key]
-
-
-def field_to_db_model(key):
-    return _field_to_model_mapper(key)
-
-
-def db_model_to_field(key):
-    return _field_to_model_mapper(key, reverse=True) 
 
 
 def get_path_sub_dirs(path, depth=1):

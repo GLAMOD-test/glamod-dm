@@ -1,5 +1,3 @@
-from settings import *
-
 CI_RoleTypes_source = 'https://raw.githubusercontent.com/glamod/glamod-inventory-app/master/glamod_inv_site/invapp/data/CI_RoleCode.csv'
 
 CI_RoleTypes = """

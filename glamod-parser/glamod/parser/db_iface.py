@@ -8,7 +8,7 @@ Interface to the DB - managed through the django ORM.
 
 
 
-from glamod.parser.settings import *
+from cdmapp.models import SourceConfiguration
 
 first = SourceConfiguration.objects.first()
 
