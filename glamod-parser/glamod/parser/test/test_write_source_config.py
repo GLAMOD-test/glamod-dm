@@ -1,4 +1,6 @@
-from glamod.parser.settings import *
+from cdmapp.models import Contact, ProductLevel, ProductStatus, SourceFormat, \
+    Organisation, DataPolicyLicence, Role, UpdateFrequency, DataPresent, \
+    SourceConfiguration
 
 """
 Fixes:

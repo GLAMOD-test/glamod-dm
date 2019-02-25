@@ -14,7 +14,7 @@ import numbers
 from pandas import notnull
 
 from glamod.parser.exceptions import ParserError
-from glamod.parser.settings import INPUT_ENCODING, DB_MAPPINGS
+from glamod.parser.settings import INPUT_ENCODING
 
 
 logger = logging.getLogger(__name__)
@@ -138,28 +138,6 @@ def map_file_type(lookup, reverse=False):
             return dct[_key]
 
     raise KeyError('Cannot lookup mapping for: {}'.format(lookup))
-
-
-def _field_to_model_mapper(key, reverse=False):
-    _map = DB_MAPPINGS
- 
-    if reverse:
-        dct = dict([(_value, _key) for _key, _value in _map.items()])
-    else:
-        dct = _map
-    
-    if key not in dct:
-        raise KeyError('Cannot lookup mapping for: {}'.format(key))    
-
-    return dct[key]
-
-
-def field_to_db_model(key):
-    return _field_to_model_mapper(key)
-
-
-def db_model_to_field(key):
-    return _field_to_model_mapper(key, reverse=True) 
 
 
 def get_path_sub_dirs(path, depth=1):

@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 class _DeliveryProcessorBase:
     
+    _schema = 'cdm_v1'
+    
     def __init__(self, location):
         
         self.location = location
@@ -38,7 +40,8 @@ class _DeliveryProcessorBase:
         
         rules = self._rules_class()
         self._record_manager = RecordManager(self._app_model, rules)
-        self._db_writer = DBWriter(self._record_manager, self._table_name)
+        self._db_writer = DBWriter(
+            self._record_manager, self._table_name, self._schema)
 
     def run(self):
         self._run_structure_checks()

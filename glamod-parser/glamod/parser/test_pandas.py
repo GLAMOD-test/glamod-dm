@@ -1,8 +1,10 @@
 import pandas
 
-from glamod.parser.settings import INPUT_ENCODING, INPUT_DELIMITER, INT_NAN
+from glamod.parser.settings import INPUT_DELIMITER
 from glamod.parser.rules.source_configuration import SourceConfigurationParserRules
 from glamod.parser.utils import *
+
+from cdmapp.models import SourceFormat, ProductLevel
 
 import copy
 
@@ -42,7 +44,7 @@ class ABC(object):
      
         for i in range(len(values)):
             value = values[i]
-            if value == INT_NAN: continue
+            if is_null(value): continue
             
             dct.setdefault(value, [])
             dct[value].append(indexes[i])
@@ -55,8 +57,7 @@ class ABC(object):
                 not_found[value] = dct[value] 
 
         if not_found:
-            print('[ERROR] The following record IDs were not found in table "{}":'.format(
-                  db_model_to_field(model.__name__)))
+            print('[ERROR] The following record IDs were not found in table "{}"')
             for key in sorted(not_found.keys()):
                 print('\tUnmatched ID:  {:8d}; Record indexes: {}'.format(key, not_found[key]))
 
