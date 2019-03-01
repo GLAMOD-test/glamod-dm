@@ -9,6 +9,28 @@ from datetime import datetime
 from .base import row_filter
 
 
+# Maps maximum values (mm) for rainfall against time period
+_max_rainfall = {
+    0: 0.5,    # Instantaneous
+    1: 0.5,    # 2 seconds
+    2: 0.5,    # 5 seconds
+    3: 0.5,    # 10 seconds
+    4: 1,      # 30 seconds
+    5: 2,      # 1 minute
+    6: 5,      # 2 minutes
+    7: 10,     # 5 minutes
+    8: 20,     # 10 minutes
+    9: 100,    # 1 hour
+    10: 250,   # 3 hours
+    11: 500,   # 6 hours
+    12: 1000,  # 12 hours
+    13: 2000,  # 1 day
+    14: 2000,  # monthly
+}
+
+_max_rainfall_cm = { k: v / 10 for k, v in _max_rainfall.items() }
+
+
 @row_filter('quality_flag')
 def filter_quality_flag(value):
     return value == 0
@@ -76,19 +98,21 @@ def filter_relative_humidity(value, units):
 
 @row_filter('observation_value', 'units', 'observation_duration')
 def filter_snow_fall(value, units, duration):
-    return units == 710 # TODO: implement the rest
+    return units == 710 and value >= 0 and value <= _max_rainfall[duration]
 
 
 @row_filter('observation_value', 'units', 'observation_duration')
 def filter_snow_water_equivalent(value, units, duration):
-    return units == 710 # TODO: implement the rest
+    return units == 710 and value >= 0 and value <= _max_rainfall[duration]
 
 
 @row_filter('observation_value', 'units', 'observation_duration')
 def filter_snow_depth(value, units, duration):
-    return units == 715 # TODO: implement the rest
+    
+    # Because units are cm, not mm, we divide max rainfall by 10
+    return units == 715 and value >= 0 and value <= _max_rainfall_cm[duration]
 
 
 @row_filter('observation_value', 'units', 'observation_duration')
 def filter_rainfall(value, units, duration):
-    return units == 710 # TODO: implement the rest
+    return units == 710 and value >= 0 and value <= _max_rainfall[duration]
