@@ -29,13 +29,3 @@ def row_filter(*keys):
         return wrapper
     
     return row_filter_decorator
-
-
-def match_filter(key, match_value):
-    
-    @row_filter(key)
-    def generated_filter(value):
-        return value == match_value
-    
-    return generated_filter
-
