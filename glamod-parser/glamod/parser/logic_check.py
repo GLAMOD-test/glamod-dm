@@ -37,6 +37,15 @@ class _LogicCheckBase(object):
         
         return filtered_data_frame
     
+    @classmethod
+    def _get_bad_values(cls, data_frame, pre_filter, logic_filter):
+        
+        if pre_filter:
+            data_frame = cls._apply_filter(data_frame, pre_filter)
+        
+        if not data_frame.empty:
+            return cls._apply_filter(data_frame, logic_filter, invert=True)
+    
     def _check_data(self, data_frame, truncate=None):
         
         for pre_filter in self._pre_filters:
@@ -45,15 +54,11 @@ class _LogicCheckBase(object):
         all_rejected_data = DataFrame(columns=data_frame.columns)
         for pre_filter, logic_filter, _ in self._logic_filters:
             
-            data_to_filter = data_frame
-            if pre_filter:
-                data_to_filter = self._apply_filter(data_frame, pre_filter)
-            
-            if not data_to_filter.empty:
-                rejected_data = self._apply_filter(
-                    data_to_filter, logic_filter, invert=True)
+            bad_data = self._get_bad_values(
+                data_frame, pre_filter, logic_filter)
+            if isinstance(bad_data, DataFrame):
                 all_rejected_data = pandas.concat(
-                    [all_rejected_data, rejected_data])
+                    [all_rejected_data, bad_data])
         
         problem = len(all_rejected_data)
         rejected_sample = all_rejected_data.truncate(after=truncate)
@@ -69,15 +74,10 @@ class _LogicCheckBase(object):
         for pre_filter, logic_filter, filter_columns in self._logic_filters:
             
             problem_rows = []
-            data_to_filter = data_frame
-            if pre_filter:
-                data_to_filter = self._apply_filter(data_frame, pre_filter)
-            
-            if not data_to_filter.empty:
-                problem_data = self._apply_filter(
-                    data_to_filter, logic_filter, invert=True)
-                
-                for row in problem_data.to_dict('records'):
+            bad_data = self._get_bad_values(
+                data_frame, pre_filter, logic_filter)
+            if isinstance(bad_data, DataFrame):
+                for row in bad_data.to_dict('records'):
                     
                     record_id = row[self._id_key]
                     bad_values = [row[key] for key in filter_columns]
