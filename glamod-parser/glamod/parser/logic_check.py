@@ -108,6 +108,7 @@ class _LogicCheckBase(object):
             all_rejected_samples = pandas.concat(
                 [all_rejected_samples, rejected_sample])
         
+        problems = []
         if isinstance(all_rejected_samples, DataFrame):
             problems = self._aggregate_problems(all_rejected_samples)
         
