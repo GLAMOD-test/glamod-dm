@@ -33,8 +33,10 @@ logging.basicConfig(
               help='Working directory to unzip files to.')
 @click.option('-v', '--verbose', is_flag=True, default=False,
               help='Verbose output.')
+@click.option('-w', '--write', is_flag=True, default=False,
+              help='Write to the database.')
 @click.argument('location', type=click.Path(exists=True)) 
-def parse_delivery(location, del_type, verbose, working_dir='working_dir'):
+def parse_delivery(location, del_type, verbose, write, working_dir='working_dir'):
 
     log_level = logging.DEBUG if verbose else logging.INFO
     logger.setLevel(log_level)
@@ -46,15 +48,15 @@ def parse_delivery(location, del_type, verbose, working_dir='working_dir'):
         location = unzip(location, target_dir=working_dir)
 
     if del_type == 'source':
-        parse_source_station_delivery(location)
+        parse_source_station_delivery(location, write_to_db=write)
     elif del_type == 'data':
-        parse_data_delivery(location)
+        parse_data_delivery(location, write_to_db=write)
     else:
         raise ValueError('Unknown delivery type: {}'.format(del_type))
 
 
 @timeit
-def parse_source_station_delivery(location):
+def parse_source_station_delivery(location, write_to_db=False):
     logger.info('Beginning parsing of SOURCE and STATION files at: '
           '{}'.format(location))
     
@@ -67,9 +69,12 @@ def parse_source_station_delivery(location):
     for processor_class in processor_classes:
         processor = processor_class(location)
         processor.run()
+        
+        if write_to_db:
+            processor.write_to_db()
 
 @timeit
-def parse_data_delivery(location):
+def parse_data_delivery(location, write_to_db=False):
     logger.info('Beginning parsing of HEADER and OBSERVATIONS TABLE '
           'files at: {}'.format(location))
     
@@ -81,6 +86,9 @@ def parse_data_delivery(location):
     for processor_class in processor_classes:
         processor = processor_class(location)
         processor.run()
+        
+        if write_to_db:
+            processor.write_to_db()
 
 
 if __name__ == '__main__':

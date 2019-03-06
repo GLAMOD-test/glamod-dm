@@ -47,7 +47,6 @@ class _DeliveryProcessorBase:
         self._run_structure_checks()
         self._run_content_checks()
         self._run_logic_checks()
-        self._write_to_db()
 
     @timeit
     def _run_structure_checks(self):
@@ -73,7 +72,7 @@ class _DeliveryProcessorBase:
         logic_check.run()
 
     @timeit
-    def _write_to_db(self):
+    def write_to_db(self):
         
         logger.info(f'Writing data to DB for files of type: {self.model_name}')
         chunks = self._chunk_manager.read_cached_chunks()
