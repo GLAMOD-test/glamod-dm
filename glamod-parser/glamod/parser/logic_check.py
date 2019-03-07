@@ -4,7 +4,6 @@ import pandas
 
 from pandas import DataFrame
 
-from glamod.parser.utils import timeit
 from glamod.parser.filters.generic import match_filter
 from glamod.parser.filters.observations_table import *
 from collections import namedtuple
@@ -92,7 +91,6 @@ class _LogicCheckBase(object):
         
         return problems
     
-    @timeit
     def run(self):
         
         logger.info(f'Starting {type(self).__name__}')
@@ -121,28 +119,24 @@ class _LogicCheckBase(object):
 
 class SourceConfigurationLogicCheck(_LogicCheckBase):
 
-    @timeit
     def run(self):
         pass
 
 
 class StationConfigurationLogicCheck(_LogicCheckBase):
 
-    @timeit
     def run(self):
         pass
 
 
 class StationConfigurationOptionalLogicCheck(_LogicCheckBase):
 
-    @timeit
     def run(self):
         pass
 
 
 class HeaderTableLogicCheck(_LogicCheckBase):
 
-    @timeit
     def run(self):
         pass
 
@@ -190,6 +184,5 @@ class ObservationsTableLogicCheck(_LogicCheckBase):
             ['observation_value', 'units', 'observation_duration']),
     ]
 
-    @timeit
     def run(self, *args, **kwargs):
         super().run(*args, **kwargs)

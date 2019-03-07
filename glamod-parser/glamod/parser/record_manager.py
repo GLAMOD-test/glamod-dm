@@ -8,7 +8,6 @@ import logging
 import copy
 
 from pandas.core.frame import DataFrame
-from django.db.models.base import Model
 
 from glamod.parser.utils import is_null, to_dict_dropna, timeit
 
@@ -75,6 +74,7 @@ class RecordManager:
         
         return field_values
     
+    @timeit
     def _resolve_related_records(self, field_values):
         """ Resolves foreign-key relationships according to custom rules.
         

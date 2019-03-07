@@ -20,7 +20,6 @@ class ObservationsTableParserRules(_ParserRulesBase):
                 'station_type': 'station_type',
             }
         ),
-        ForeignKeyLookup('report_id', HeaderTable, 'report_id'),
         ForeignKeyLookup('data_policy_licence', DataPolicyLicence, 'policy'),
         ForeignKeyLookup('date_time_meaning', MeaningOfTimestamp, 'meaning'),
         ForeignKeyLookup('observation_duration', Duration, 'duration'),
