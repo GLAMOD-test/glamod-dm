@@ -35,6 +35,10 @@ class ChunkManager:
                 chunk = record_manager.resolve_data_frame(chunk)
                 self._pickle(chunk, pickle_path)
             
+            else:
+                logger.info(
+                    f'Skipping check for pre-pickled chunk: {pickle_path}.')
+            
             self._pickled_chunks.append(pickle_path)
             self._record_count += chunk_length
 
