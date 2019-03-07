@@ -27,12 +27,13 @@ class ChunkManager:
         
         for count, chunk in enumerate(chunks):
             
-            if record_manager:
-                chunk = record_manager.resolve_data_frame(chunk)
-            
             chunk_length = len(chunk)
             pickle_path = self._get_pickle_path(chunk_name, count, chunk_length)
-            self._pickle(chunk, pickle_path)
+            
+            if not os.path.exists(pickle_path) and record_manager:
+                
+                chunk = record_manager.resolve_data_frame(chunk)
+                self._pickle(chunk, pickle_path)
             
             self._pickled_chunks.append(pickle_path)
             self._record_count += chunk_length
