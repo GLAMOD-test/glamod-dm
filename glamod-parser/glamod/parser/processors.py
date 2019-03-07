@@ -72,11 +72,11 @@ class _DeliveryProcessorBase:
         logic_check.run()
 
     @timeit
-    def write_to_db(self):
+    def write_to_db(self, bulk):
         
         logger.info(f'Writing data to DB for files of type: {self.model_name}')
         chunks = self._chunk_manager.read_cached_chunks()
-        self._db_writer.write_to_db(chunks)
+        self._db_writer.write_to_db(chunks, bulk=bulk)
 
     def _get_check_by_name(self, check_name):
         class_name = self.model_name + check_name

@@ -35,8 +35,10 @@ logging.basicConfig(
               help='Verbose output.')
 @click.option('-w', '--write', is_flag=True, default=False,
               help='Write to the database.')
+@click.option('-b', '--bulk', is_flag=True, default=False,
+              help='Bulk Write to the database.')
 @click.argument('location', type=click.Path(exists=True)) 
-def parse_delivery(location, del_type, verbose, write, working_dir='working_dir'):
+def parse_delivery(location, del_type, verbose, write, bulk, working_dir='working_dir'):
 
     log_level = logging.DEBUG if verbose else logging.INFO
     logger.setLevel(log_level)
@@ -48,15 +50,18 @@ def parse_delivery(location, del_type, verbose, write, working_dir='working_dir'
         location = unzip(location, target_dir=working_dir)
 
     if del_type == 'source':
-        parse_source_station_delivery(location, write_to_db=write)
+        parse_source_station_delivery(
+            location, write_to_db=write, bulk_write=bulk)
     elif del_type == 'data':
-        parse_data_delivery(location, write_to_db=write)
+        parse_data_delivery(
+            location, write_to_db=write, bulk_write=bulk)
     else:
         raise ValueError('Unknown delivery type: {}'.format(del_type))
 
 
 @timeit
-def parse_source_station_delivery(location, write_to_db=False):
+def parse_source_station_delivery(
+        location, write_to_db=False, bulk_write=False):
     logger.info('Beginning parsing of SOURCE and STATION files at: '
           '{}'.format(location))
     
@@ -71,10 +76,11 @@ def parse_source_station_delivery(location, write_to_db=False):
         processor.run()
         
         if write_to_db:
-            processor.write_to_db()
+            processor.write_to_db(bulk=bulk_write)
 
 @timeit
-def parse_data_delivery(location, write_to_db=False):
+def parse_data_delivery(
+        location, write_to_db=False, bulk_write=False):
     logger.info('Beginning parsing of HEADER and OBSERVATIONS TABLE '
           'files at: {}'.format(location))
     
@@ -88,7 +94,7 @@ def parse_data_delivery(location, write_to_db=False):
         processor.run()
         
         if write_to_db:
-            processor.write_to_db()
+            processor.write_to_db(bulk=bulk_write)
 
 
 if __name__ == '__main__':
