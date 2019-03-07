@@ -129,7 +129,7 @@ class StationConfigurationStructureCheck(
     
     expected_directories = ['station_configuration']
     file_name_pattern = \
-        'station_configuration_({}+)\.psv'.format(REGEX_SAFE)
+        'station_configuration_(?!optional)({}+)\.psv'.format(REGEX_SAFE)
 
 
 class StationConfigurationOptionalStructureCheck(
