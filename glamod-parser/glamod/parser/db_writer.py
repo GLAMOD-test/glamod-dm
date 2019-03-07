@@ -50,8 +50,9 @@ class DBWriter(object):
                     index=False
                 )
             except IntegrityError as e:
-                logger.error(f'Failed to write chunk due to database error.')
-                logger.error(str(e))
+                logger.error((f'Failed to write chunk: '
+                    f'{e.orig.diag.message_primary} '
+                    f'({e.orig.diag.message_detail})'))
             
         else:
             for i in range(len(chunk)):
@@ -65,4 +66,5 @@ class DBWriter(object):
                         index=False
                     )
                 except IntegrityError as e:
-                    logger.error(str(e))
+                    logger.error((f'{e.orig.diag.message_primary} '
+                        f'({e.orig.diag.message_detail})'))
