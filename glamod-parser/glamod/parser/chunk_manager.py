@@ -46,6 +46,10 @@ class ChunkManager:
         
         for pickled_chunk_path in self._pickled_chunks:
             
+            if not os.path.isfile(pickled_chunk_path):
+                logger.error(f'Pickle file not found: {pickled_chunk_path}')
+                continue
+            
             logger.info(
                 'Reading DataFrame from chunk: {}'.format(pickled_chunk_path)
             )
