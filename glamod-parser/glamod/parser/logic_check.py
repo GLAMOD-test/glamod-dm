@@ -101,7 +101,7 @@ class _LogicCheckBase(object):
             problem_count, rejected_sample = self._check_data(chunk)
             total_problem_count += problem_count
             
-            if all_rejected_samples == None:
+            if not isinstance(all_rejected_samples, DataFrame):
                 all_rejected_samples = DataFrame(columns=chunk.columns)
             all_rejected_samples = pandas.concat(
                 [all_rejected_samples, rejected_sample])
