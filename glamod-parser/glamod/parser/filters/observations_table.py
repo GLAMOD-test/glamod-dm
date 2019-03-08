@@ -4,6 +4,7 @@ Created on Feb 28, 2019
 @author: William Tucker
 '''
 
+
 from datetime import datetime
 
 from .decorators import row_filter
@@ -79,7 +80,8 @@ def filter_year(value):
 
 @row_filter('date_time')
 def filter_time(value):
-    return value <= datetime.now()
+    compare = datetime.now()
+    return value.date() <= compare.date()
 
 
 @row_filter('observation_value', 'units')
