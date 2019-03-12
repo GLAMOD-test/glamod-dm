@@ -34,7 +34,7 @@ class HeaderTableParserRules(_ParserRulesBase):
         ),
         ForeignKeyLookup(
             'primary_station_id', StationConfigurationLookupFields, 'primary_id',
-            query_map = { 'record_number': 'record_number' },
+            query_map = { 'station_record_number': 'record_number' },
             extra_fields = {
                 'region': 'region',
                 'primary_station_id_scheme': 'primary_station_id_scheme',
