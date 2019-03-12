@@ -22,7 +22,7 @@ class _DeliveryProcessorBase:
     
     _schema = 'cdm_v1'
     
-    def __init__(self, location):
+    def __init__(self, location, overwrite_saved=True):
         
         self.location = location
         self.model_name = self._app_model.__name__
@@ -36,7 +36,8 @@ class _DeliveryProcessorBase:
         self._content_check_class = self._get_check_by_name('ContentCheck')
         self._logic_check_class = self._get_check_by_name('LogicCheck')
         
-        self._chunk_manager = ChunkManager(pickle_directory)
+        self._chunk_manager = ChunkManager(pickle_directory,
+                                           overwrite_saved=overwrite_saved)
         
         rules = self._rules_class()
         self._record_manager = RecordManager(self._app_model, rules)

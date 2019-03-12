@@ -37,8 +37,11 @@ logging.basicConfig(
               help='Write to the database.')
 @click.option('-b', '--bulk', is_flag=True, default=False,
               help='Bulk Write to the database.')
+@click.option('-o', '--overwrite', is_flag=True, default=False,
+              help='Over-write existing pickled chunks.')
 @click.argument('location', type=click.Path(exists=True)) 
-def parse_delivery(location, del_type, verbose, write, bulk, working_dir='working_dir'):
+def parse_delivery(location, del_type, verbose, write, bulk, overwrite,
+                   working_dir='working_dir'):
 
     log_level = logging.DEBUG if verbose else logging.INFO
     logger.setLevel(log_level)
@@ -51,17 +54,19 @@ def parse_delivery(location, del_type, verbose, write, bulk, working_dir='workin
 
     if del_type == 'source':
         parse_source_station_delivery(
-            location, write_to_db=write, bulk_write=bulk)
+            location, write_to_db=write, bulk_write=bulk,
+            overwrite_saved=overwrite)
     elif del_type == 'data':
         parse_data_delivery(
-            location, write_to_db=write, bulk_write=bulk)
+            location, write_to_db=write, bulk_write=bulk,
+            overwrite_saved=overwrite)
     else:
         raise ValueError('Unknown delivery type: {}'.format(del_type))
 
 
 @timeit
 def parse_source_station_delivery(
-        location, write_to_db=False, bulk_write=False):
+        location, write_to_db=False, bulk_write=False, overwrite_saved=True):
     logger.info('Beginning parsing of SOURCE and STATION files at: '
           '{}'.format(location))
     
@@ -72,7 +77,7 @@ def parse_source_station_delivery(
     ]
     
     for processor_class in processor_classes:
-        processor = processor_class(location)
+        processor = processor_class(location, overwrite_saved=overwrite_saved)
         processor.run()
         
         if write_to_db:
@@ -80,7 +85,7 @@ def parse_source_station_delivery(
 
 @timeit
 def parse_data_delivery(
-        location, write_to_db=False, bulk_write=False):
+        location, write_to_db=False, bulk_write=False, overwrite_saved=True):
     logger.info('Beginning parsing of HEADER and OBSERVATIONS TABLE '
           'files at: {}'.format(location))
     
@@ -90,7 +95,7 @@ def parse_data_delivery(
     ]
     
     for processor_class in processor_classes:
-        processor = processor_class(location)
+        processor = processor_class(location, overwrite_saved=overwrite_saved)
         processor.run()
         
         if write_to_db:

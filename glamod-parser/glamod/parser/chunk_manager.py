@@ -15,22 +15,23 @@ class ChunkManager:
     to cache files. And allows easy access to chunks.
     """
 
-    def __init__(self, pickle_directory):
+    def __init__(self, pickle_directory, overwrite_saved=True):
         
         safe_mkdir(pickle_directory)
         self._pickle_directory = pickle_directory
-        self._pickled_chunks = []
+        self._overwrite_saved = overwrite_saved
         
+        self._pickled_chunks = []
         self._record_count = 0
 
-    def pickle_chunks(self, chunks, chunk_name, record_manager=None):
+    def pickle_chunks(self, chunks, chunk_name, record_manager):
         
         for count, chunk in enumerate(chunks):
             
             chunk_length = len(chunk)
             pickle_path = self._get_pickle_path(chunk_name, count, chunk_length)
             
-            if not os.path.exists(pickle_path) and record_manager:
+            if self._overwrite_saved or not os.path.exists(pickle_path):
                 
                 chunk = record_manager.resolve_data_frame(chunk)
                 self._pickle(chunk, pickle_path)
