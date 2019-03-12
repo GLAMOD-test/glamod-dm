@@ -6,7 +6,8 @@ import logging
 
 from .utils import count_lines
 from .exceptions import ParserError
-from .settings import REGEX_SAFE
+from .settings import REGEX_SAFE, HEADER_FILE_LOCATION, HEADER_FILE_REGEX, \
+    OBSERVATIONS_FILE_LOCATION, OBSERVATIONS_FILE_REGEX
 
 
 logger = logging.getLogger(__name__)
@@ -103,17 +104,17 @@ class HeaderAndObservationsTablesStructureCheck(_StructureCheckBase):
 class HeaderTableStructureCheck(
         HeaderAndObservationsTablesStructureCheck):
     
-    expected_directories = ['header_table']
+    expected_directories = [HEADER_FILE_LOCATION]
     file_name_pattern = \
-        'header_table_({}+)\.psv'.format(REGEX_SAFE)
+        HEADER_FILE_REGEX
 
 
 class ObservationsTableStructureCheck(
         HeaderAndObservationsTablesStructureCheck):
     
-    expected_directories = ['observations_table']
+    expected_directories = [OBSERVATIONS_FILE_LOCATION]
     file_name_pattern = \
-        'observations_table_({}+)\.psv'.format(REGEX_SAFE)
+        OBSERVATIONS_FILE_REGEX
 
 
 class SourceConfigurationStructureCheck(

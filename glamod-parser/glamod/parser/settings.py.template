@@ -1,5 +1,11 @@
 REGEX_SAFE = '[a-zA-Z0-9-._]'
 
+HEADER_FILE_LOCATION = 'header_table/'
+HEADER_FILE_REGEX = 'header_table_([a-zA-Z0-9-._]+)\.psv'
+
+OBSERVATIONS_FILE_LOCATION = 'observations_table/'
+OBSERVATIONS_FILE_REGEX = 'observation_table_([a-zA-Z0-9-._]+)\.psv'
+
 INPUT_DELIMITER = '|'
 INPUT_ENCODING = 'windows-1252'
 
