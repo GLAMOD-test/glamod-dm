@@ -20,7 +20,7 @@ class HeaderTableParserRules(_ParserRulesBase):
     lookups = [
         ForeignKeyLookup(
             'primary_station_id', StationConfiguration, 'primary_id',
-            query_map = { 'record_number': 'record_number' },
+            query_map = { 'station_record_number': 'record_number' },
             extra_fields = {
                 'station_name': 'station_name',
                 'station_type': 'station_type',
