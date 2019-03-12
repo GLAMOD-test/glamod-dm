@@ -1,5 +1,5 @@
 
-from pandas.core.tools.datetimes import to_datetime
+from pandas import to_datetime
 from functools import wraps
 
 from glamod.parser.complex_types import *

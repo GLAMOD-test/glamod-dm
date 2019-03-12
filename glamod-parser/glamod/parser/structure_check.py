@@ -7,7 +7,7 @@ import logging
 from .utils import count_lines
 from .exceptions import ParserError
 from .settings import REGEX_SAFE, HEADER_FILE_LOCATION, HEADER_FILE_REGEX, \
-    OBSERVATIONS_FILE_LOCATION, OBSERVATIONS_FILE_REGEX
+    OBSERVATIONS_FILE_LOCATION, OBSERVATIONS_FILE_REGEX, FILE_LIMIT
 
 
 logger = logging.getLogger(__name__)
@@ -55,6 +55,14 @@ class _StructureCheckBase:
                 f'No files found at {self._file_directories} '
                 f'with pattern: {self.file_name_pattern}'
             )
+        else:
+            
+            file_count = len(self._found_files)
+            logger.info(f'Found a total of {file_count} files.')
+            if FILE_LIMIT and FILE_LIMIT < file_count:
+                
+                logger.info(f'Loading only the first {FILE_LIMIT} files.')
+                self._found_files = sorted(self._found_files)[:FILE_LIMIT]
         
         logger.info('Checked file structure (not content yet).')
     
